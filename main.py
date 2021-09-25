@@ -5,7 +5,7 @@ import glob # used only in Evora.getHeader
 import os # used only in Evora.chooseLogFile
 import time
 
-from evora.common.utils.fits as fits_utils # TODO: edit path structure later
+import evora.common.utils.fits as fits_utils # TODO: edit path structure later
 import numpy as np
 import pandas as pd
 from astropy.io import fits

@@ -6,7 +6,7 @@ from astropy.io import fits
 
 import evora.common.logging.my_logger as my_logger
 
-logger = my_logger.myLogger("fits_utils.py", "client")
+# logger = my_logger.myLogger("fits_utils.py", "client")
 
 
 def getdata(path):
@@ -84,7 +84,7 @@ def iterate_image_counter(name):
     """
     temp = name.split('_')
     count = int(temp[-1])
-    logger.debug(str(count))
+    # logger.debug(str(count))
     count += 1
     if count < 10:
         temp[-1] = "00" + str(count)
@@ -93,5 +93,5 @@ def iterate_image_counter(name):
     else:
         temp[-1] = str(count)
     name = "_".join(temp[:])
-    logger.debug("Iterated to: " + name)
+    # logger.debug("Iterated to: " + name)
     return name

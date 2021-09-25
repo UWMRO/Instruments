@@ -12,7 +12,7 @@ def index():
 def route_temperature():
     andor_temp = 0  # add something here to output the actual temperature
     # limitation: does not update realtime
-    return '{}°F'.format(andor_temp)
+    return '{}°C'.format(andor_temp)
 
 
 if __name__ == '__main__':

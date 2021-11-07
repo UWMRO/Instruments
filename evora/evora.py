@@ -1,3 +1,4 @@
+from andor import andor
 class Evora(object):
     """
     This class executes the driver code through the "andor" import which is "swigged" C++ code.

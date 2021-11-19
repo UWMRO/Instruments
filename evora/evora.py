@@ -117,13 +117,15 @@ class Evora(object):
         # 20035 is NotStabalized
         # 20036 is Stabalized
         # 20034 is Off
-        result = andor.GetTemperatureStatus()
-        mode = andor.GetTemperatureF()
-        txt = "" + str(mode[0])
-        # logger.debug(str(result))
-        for e in result:
-            txt = txt + "," + str(e)
-        return "temp " + txt
+        temperature_status_names = ['sensor', 'target', 'ambient']
+        cooling_status, *temperature_statuses = andor.GetTemperatureStatus()
+        temperatures_by_name = dict(zip(temperature_status_names, temperature_statuses))
+        temperature_measurement = andor.GetTemperatureF()
+        temperatures_by_name['detector'] = temperature_measurement[1]
+        return {
+            'cooling_status': temperature_measurement[0],
+            'temperatures': temperatures_by_name
+        }
 
     def getTempRange(self):
         """

@@ -1,0 +1,25 @@
+{% from 'temperatureDisplay.html' import temperatureDisplay %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>UWMRO Camera Controls</title>
+        <script src="/static/temperature.js"></script>
+    </head>
+    <body>
+        <h1>UWMRO Camera Controls</h1>
+        <section>
+            <h2>Temperature</h2>
+            <div>
+                <b>Current temperature: </b>
+                <pre id="temperature-display">{{ tempData }}</pre>
+                {%  for tempSource in ['detector', 'sensor', 'target', 'ambient'] %}
+                    {{ temperatureDisplay(tempSource, tempData['temperatures'][tempSource]) }}
+                {%  endfor %}
+            </div>
+            <div>
+                <button id="temperature-refresh">Refresh</button>
+            </div>
+        </section>
+    </body>
+</html>

@@ -136,7 +136,7 @@ class Evora(object):
         result = stats[0]
         mintemp = stats[1]
         maxtemp = stats[2]
-        return "tempRange " + "%s,%s,%s" % (result, mintemp, maxtemp)
+        return stats[1, 2]
 
     def shutdown(self):
         """

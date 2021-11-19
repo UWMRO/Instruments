@@ -1,0 +1,6 @@
+{% macro temperatureDisplay(sourceName, initialValue='?') %}
+    <div>
+        <b>{{ sourceName }}: </b>
+        <span id="temperature-value-{{ sourceName }}"></span>&deg;C
+    </div>
+{% endmacro %}

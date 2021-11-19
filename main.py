@@ -1,4 +1,5 @@
-from flask import Flask
+from flask import Flask, render_template
+
 app = Flask(__name__)
 
 from evora.evora import Evora 
@@ -11,7 +12,9 @@ except(ImportError):
 
 @app.route('/')
 def index():
-    return 'Server is running'
+    evora = Evora()
+    tempData = evora.getTemp()
+    return render_template('index.html', tempData=tempData)
 
 
 # REMEMBER: localhost:5000/temperature

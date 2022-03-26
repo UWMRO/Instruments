@@ -17,7 +17,7 @@ std::vector<std::vector<at_32>> acquireDataMatrix(int imageWidth, int imageHeigh
 	}
 	for (auto row = 0; row < imageHeight; row++) {
 		for (auto col = 0; col < imageWidth; col++) {
-			out[row][col] = imageData[row + col];
+			out[row][col] = imageData[row * col];
 		}
 	}
 

@@ -51,4 +51,18 @@ PYBIND11_MODULE(andor_wrapper, m) {
 		));
 		return out;
 	},						"Return CCD data");		// converted into a NumPy array.
+
+    m.def("coolerOn",		&CoolerON,		"Turn on Thermoelectric Cooler (TEC)");
+    m.def("coolerOff",		&CoolerOFF,		"Turn off Thermoelectric Cooler (TEC)");
+    m.def("setTargetTEC",	&SetTemperature,	"Set target TEC temperature");
+    m.def("getStatusTEC",	[](void) {
+		    int temperature, status;
+		    status = GetTemperature(&temperature);
+		    py::dict out;
+		    out["temperature"]	= temperature;
+		    out["status"]	= status;
+		
+		    return out;
+	},						"Get TEC temperature and status");
+    
 }

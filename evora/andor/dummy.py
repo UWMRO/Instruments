@@ -1,4 +1,4 @@
-from PIL import Image
+# from PIL import Image
 from numpy import asarray
 import base64
 from io import BytesIO

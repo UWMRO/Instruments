@@ -24,8 +24,14 @@ std::vector<std::vector<at_32>> acquireDataMatrix(int imageWidth, int imageHeigh
 	return out;
 }
 
+unsigned int InitializeWrapper(std::string andor_dir = "/usr/local/etc/andor") {
+	char* casted = const_cast<char*>(andor_dir.c_str());
+	return Initialize(casted);
+}
+
 PYBIND11_MODULE(andor_wrapper, m) {
-    m.def("initialize",		&Initialize,		"Initialize the Andor Camera");
+    m.def("initialize",		&InitializeWrapper,	"Initialize the Andor Camera",
+	py::arg("andor_dir") = "/usr/local/etc/andor");
     m.def("setReadMode",	&SetReadMode,		"Set Read Mode");
     m.def("shutdown",		&ShutDown,		"Shutdown the Andor Camera");
     m.def("setAcquisitionMode",	&SetAcquisitionMode,	"Set acquisition mode");
@@ -44,7 +50,9 @@ PYBIND11_MODULE(andor_wrapper, m) {
     m.def("setShutter",		&SetShutter,		"Initialize camera shutter");
     m.def("setImage",		&SetImage,		"Set image dimensions");
     m.def("startAcquisition",	&StartAcquisition,	"Acquire CCD data");
-    m.def("getAcquiredData",	[](py::tuple& dim) {			// revisit this? need to find how to cast tuple values correctly.
+    m.def("waitForAcquisition",	&WaitForAcquisition,	"Wait until an acquisition event occurs");
+    m.def("abortAcquisition",	&AbortAcquisition,	"Abort current acquisition if there is one");
+    m.def("getAcquiredData",	[](py::tuple& dim) {
 		py::array out = py::cast(acquireDataMatrix(
 					dim[0].cast<int>(),
 					dim[1].cast<int>()
@@ -57,12 +65,15 @@ PYBIND11_MODULE(andor_wrapper, m) {
     m.def("setTargetTEC",	&SetTemperature,	"Set target TEC temperature");
     m.def("getStatusTEC",	[](void) {
 		    int temperature, status;
-		    status = GetTemperature(&temperature);
+		    status = GetTemperatureF(&temperature);
 		    py::dict out;
 		    out["temperature"]	= temperature;
 		    out["status"]	= status;
 		
 		    return out;
 	},						"Get TEC temperature and status");
+    m.def("getRangeTEC",	&GetTemperatureRange,	"Get valid range of temperatures (C) which TEC can cool to");
+    m.def("setFanMode",		&SetFanMode,		"Set fan mode");
+
     
 }

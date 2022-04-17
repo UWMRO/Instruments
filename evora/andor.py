@@ -1,7 +1,6 @@
 import andor_wrapper as wrapper
 from error_codes import ERROR_CODES
-import inspect
-# this wrapper layer adds in exceptions and error cases only
+# this wrapper layer adds in error cases only
 
 EXCLUDE = [
     '__doc__',

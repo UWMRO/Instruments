@@ -17,7 +17,8 @@ EXCLUDE = [
 RETURNS_DICT = [
     'getDetector',
     'getAcquiredData',
-    'getStatusTEC'
+    'getStatusTEC',
+    'getAcquisitionTimings'
 ]
 
 class AndorCameraError(Exception):

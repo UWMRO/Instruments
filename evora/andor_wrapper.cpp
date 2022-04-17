@@ -7,10 +7,8 @@ namespace py = pybind11;
 
 // GetAcquiredData originally modifies an array of long (at_32) to acquire the imaging data.
 // helper func. below to convert it into a returned value, in matrix form.
-std::vector<std::vector<at_32>> acquireDataMatrix(int imageWidth, int imageHeight) {
-	at_32* imageData = new at_32[imageWidth * imageHeight];
-	GetAcquiredData(imageData, imageWidth * imageHeight);
-
+//
+std::vector<std::vector<at_32>> reshapeImageData(at_32* imageData, int imageWidth, int imageHeight) {
 	auto out = std::vector<std::vector<at_32>>();
 	for (auto row = 0; row < imageHeight; row++) {
 		out.push_back(std::vector<at_32>(imageWidth));
@@ -23,6 +21,7 @@ std::vector<std::vector<at_32>> acquireDataMatrix(int imageWidth, int imageHeigh
 
 	return out;
 }
+
 
 unsigned int InitializeWrapper(std::string andor_dir = "/usr/local/etc/andor") {
 	char* casted = const_cast<char*>(andor_dir.c_str());
@@ -41,11 +40,17 @@ PYBIND11_MODULE(andor_wrapper, m) {
     m.def("getAcquisitionTimings",  
                                     [](void) {
                                         float exposure, accumulate, kinetic;
-                                        GetAcquisitionTimings(&exposure, &accumulate, &kinetic);
+                                        exposure = -1;
+                                        accumulate = -1;
+                                        kinetic = -1;
+
+                                        int status;
+                                        status = GetAcquisitionTimings(&exposure, &accumulate, &kinetic);
                                         py::dict out;
                                         out["exposure"] = exposure;
                                         out["accumulate"] = accumulate;
                                         out["kinetic"] = kinetic;
+                                        out["status"] = status;
 
                                         return out;
                                     },                      "Get current camera timing settings");
@@ -58,9 +63,16 @@ PYBIND11_MODULE(andor_wrapper, m) {
 
     m.def("getDetector",	
                                 [](void) {
-                                    int imageWidth, imageHeight;
-                                    GetDetector(&imageWidth, &imageHeight);
-                                    return py::make_tuple(imageWidth, imageHeight);
+                                    int imageWidth, imageHeight, status;
+                                    imageWidth = -1;
+                                    imageHeight = -1;
+
+                                    status = GetDetector(&imageWidth, &imageHeight);
+                                    py::tuple dim = py::make_tuple(imageWidth, imageHeight);
+                                    py::dict out;
+                                    out["dimensions"] = dim;
+                                    out["status"] = status;
+                                    return out;
                                 },                      "Get detector dimensions");	// converted into a tuple.
 
     m.def("setShutter", 		&SetShutter,		    "Initialize camera shutter");
@@ -70,10 +82,21 @@ PYBIND11_MODULE(andor_wrapper, m) {
     m.def("abortAcquisition",	&AbortAcquisition,	    "Abort current acquisition if there is one");
     m.def("getAcquiredData",	
                                 [](py::tuple& dim) {
-                                    py::array out = py::cast(acquireDataMatrix(
-                                                dim[0].cast<int>(),
-                                                dim[1].cast<int>()
+                                    int imageWidth, imageHeight;
+                                    imageWidth = dim[0].cast<int>();
+                                    imageHeight = dim[1].cast<int>();
+	                                at_32* imageDataArray = new at_32[imageWidth * imageHeight];
+                                    int status = GetAcquiredData(imageDataArray, imageWidth * imageHeight);
+                                    py::array imageDataMatrix = py::cast(reshapeImageData(
+                                                imageDataArray,
+                                                imageWidth,
+                                                imageHeight
                                     ));
+
+                                    py::dict out;
+                                    out["data"] = imageDataMatrix;
+                                    out["status"] = status;
+                                    
                                     return out;
                                 },     					"Return CCD data");		// converted into a NumPy array.
 
@@ -83,6 +106,8 @@ PYBIND11_MODULE(andor_wrapper, m) {
     m.def("getStatusTEC",	
                                 [](void) {
                                     float temperature;
+                                    temperature = -999.0;
+
                                     int status;
                                     status = GetTemperatureF(&temperature);
                                     py::dict out;
@@ -92,6 +117,20 @@ PYBIND11_MODULE(andor_wrapper, m) {
                                     return out;
                                 },	                    "Get TEC temperature and status");
 
-    m.def("getRangeTEC",	    &GetTemperatureRange,	"Get valid range of temperatures (C) which TEC can cool to");
+    m.def("getRangeTEC",	    
+                                [](void) {
+                                    int min, max;
+                                    min = -999;
+                                    max = -999;
+                                    
+                                    int status;
+                                    status = GetTemperatureRange(&min, &max);
+                                    py::dict out;
+                                    out["min"] = min;
+                                    out["max"] = max;
+                                    out["status"] = status;
+
+                                    return out;
+                                },                      "Get valid range of temperatures (C) which TEC can cool to");
     m.def("setFanMode",		    &SetFanMode,		    "Set fan mode");
 }

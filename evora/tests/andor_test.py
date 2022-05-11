@@ -15,39 +15,39 @@ def test_setAcquisitionMode():
 
 
 def test_setExposureTime():
-   pass
+   assert setExposure() == 20002
 
 
 def test_setShutter():
-   pass
+   assert setShutter() == 20002
 
 
 def test_setImage():
-   pass
+   assert setImage() == 20002
 
 
 def test_setFanMode():
-   pass
+   assert setFanMode() == 20002
 
 
 def test_coolerOn():
-   pass
+   assert coolerOn() == 20002
 
 
 def test_coolerOff():
-   pass
+   assert coolerOff() == 20002
 
 
 def test_setTargetTEC():
-   pass
+   assert setTargetTEC() == 20002
 
 
 def test_startAcquisition():
-   pass
+   assert startAcquisition() == 20002
 
 
 def test_getStatus():
-   pass
+   assert getStatus() == 20002
 
 
 def main():
@@ -56,3 +56,4 @@ def main():
 
 if __name__ == '__main__':
    main()
+   shutdown()

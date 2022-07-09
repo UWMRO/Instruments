@@ -1,10 +1,13 @@
-import unittest
+import pytest
 import sys
   
 # setting path
 sys.path.append('../evora')
 from andor import *
 
+@pytest
+def initialize_andor():
+   return initalize()
 
 def test_initialize():
    assert initialize() == 20002

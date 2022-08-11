@@ -20,44 +20,48 @@ SWIG seems to change the API from the docs in two major ways
 
 
 # Andor SDK replacement functions with return values
-def GetStatus():
+def getStatus():
     return [DRV_NOT_INITIALIZED, 0]
 
 
-def GetAvailableCameras():
+def getStatusTEC():
+    return [DRV_NOT_INITIALIZED, 0]
+
+
+def getAvailableCameras():
     return 1
 
 
-def GetCameraHandle(cameraIndex):
+def getCameraHandle(cameraIndex):
     return [DRV_SUCCESS, 1]
 
 
-def Initialize(directory):
+def initialize(directory=''):
     return 1
 
 
-def GetTemperatureF():
+def getTemperatureF():
     return [DRV_SUCCESS, 32]
 
 
-def GetTemperatureStatus():
+def getTemperatureStatus():
     return [DRV_SUCCESS, 1]
 
 
-def GetTemperatureRange(mintemp, maxtemp):
+def getTemperatureRange(mintemp, maxtemp):
     return maxtemp - mintemp
 
 
 # Acquisition
-def StartAcquisition():
+def startAcquisition():
     DRV_ACQUIRING = 1
 
 
-def AbortAcquisition():
+def abortAcquisition():
     DRV_ACQUIRING = 0
 
 
-def GetAcquiredData16(write_var):
+def getAcquiredData16(write_var):
     img = 'space.txt'
     if randint(0, 1000) >= 999:
         img = 'space0.txt'
@@ -71,42 +75,42 @@ def GetAcquiredData16(write_var):
 
 
 # These functions do the same thing in this context
-GetMostRecentImage16 = GetAcquiredData16
+getMostRecentImage16 = getAcquiredData16
 
 
-def GetAcquisitionTimings(exposure, accumulate, kinetic):
+def getAcquisitionTimings(exposure, accumulate, kinetic):
     return 1
 
 
-def GetNumberVSSpeeds(speeds):
+def getNumberVSSpeeds(speeds):
     return 1
 
 
-def GetNumberVSAmplitudes(number):
+def getNumberVSAmplitudes(number):
     return 1
 
 
-def GetVSSpeed(index, speed):
+def getVSSpeed(index, speed):
     return 1
 
 
-def GetFastestRecommendedVSSpeed(index, speeds):
+def getFastestRecommendedVSSpeed(index, speeds):
     return 1
 
 
-def GetNumberHSSpeeds(channel, typ, speeds):
+def getNumberHSSpeeds(channel, typ, speeds):
     return 1
 
 
-def GetHSSpeed(channel, typ, index, speed):
+def getHSSpeed(channel, typ, index, speed):
     return 1
 
 
-def GetDetector(xpixels, ypixels):
+def getDetector(xpixels, ypixels):
     return 1
 
 
-def GetAcquisitionProgress(acc, series):
+def getAcquisitionProgress(acc, series):
     return 1
 
 
@@ -117,20 +121,20 @@ def noop(*args):
 
 
 # Set to noop func instead of defining each to save space
-SetCurrentCamera = noop
-SetAcquisitionMode = noop
-SetTemperature = noop
-SetShutter = noop
-SetFanMode = noop
-CoolerOFF = noop
-CoolerON = noop
-Shutdown = noop
-SetReadMode = noop
-SetImage = noop
-SetShutter = noop
-SetExposureTime = noop
-SetKineticCycleTime = noop
-SetNumberAccumulations = noop
-SetAccumulationCycleTime = noop
-SetNumberKinetics = noop
-SetTriggerMode = noop
+setCurrentCamera = noop
+setAcquisitionMode = noop
+setTemperature = noop
+setShutter = noop
+setFanMode = noop
+coolerOFF = noop
+coolerON = noop
+shutdown = noop
+setReadMode = noop
+setImage = noop
+setShutter = noop
+setExposureTime = noop
+setKineticCycleTime = noop
+setNumberAccumulations = noop
+setAccumulationCycleTime = noop
+setNumberKinetics = noop
+setTriggerMode = noop

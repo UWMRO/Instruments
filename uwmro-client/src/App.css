@@ -2,6 +2,15 @@
   text-align: center;
 }
 
+.ImageTypeSelector {
+  text-align: left;
+  border: 1px solid black;
+}
+
+.Temperature {
+  text-align: right;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;

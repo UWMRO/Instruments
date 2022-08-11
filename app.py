@@ -1,5 +1,5 @@
 from flask import Flask, render_template
-from evora import andor
+from evora import dummy as andor #andor
 # app = Flask(__name__)
 
 #try:
@@ -35,7 +35,7 @@ def create_app(test_config=None):
     # REMEMBER: localhost:5000/temperature
     @app.route('/temperature')
     def route_temperature():
-        return andor.getStatusTEC()
+        return str(andor.getStatusTEC()[1])
 
     return app
 
@@ -43,4 +43,4 @@ app = create_app()
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=3000)

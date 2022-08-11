@@ -12,5 +12,5 @@ export async function getTemperature() {
 	// Remember that async makes this return a Promise. This return statement "resolves" the
 	// promise. If some other part of our code awaits getTemperature(), it will resume after
 	// after this return statement. 
-    return data.temperature
+    return data
 }

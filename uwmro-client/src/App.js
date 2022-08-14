@@ -5,7 +5,7 @@ import ExposureTypeSelector from './components/SetExposureType';
 
 function App() {
   return (
-    <div className='App'>
+    <div className='App'> Manastash Ridge Observatory Controls
       <ImageTypeSelector/>
       <ExposureTypeSelector/>
       <GetTemp/>

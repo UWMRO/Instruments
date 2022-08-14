@@ -35,7 +35,7 @@ def create_app(test_config=None):
     # REMEMBER: localhost:5000/temperature
     @app.route('/temperature')
     def route_temperature():
-        return str(andor.getStatusTEC()[1])
+        return str(andor.getStatusTEC()['temperature'])
 
     return app
 

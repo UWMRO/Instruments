@@ -21,11 +21,11 @@ SWIG seems to change the API from the docs in two major ways
 
 # Andor SDK replacement functions with return values
 def getStatus():
-    return [DRV_NOT_INITIALIZED, 0]
+    return DRV_NOT_INITIALIZED
 
 
 def getStatusTEC():
-    return [DRV_NOT_INITIALIZED, 0]
+    return {'status':DRV_NOT_INITIALIZED, 'temperature':-999}
 
 
 def getAvailableCameras():
@@ -33,7 +33,7 @@ def getAvailableCameras():
 
 
 def getCameraHandle(cameraIndex):
-    return [DRV_SUCCESS, 1]
+    return DRV_SUCCESS
 
 
 def initialize(directory=''):
@@ -41,11 +41,11 @@ def initialize(directory=''):
 
 
 def getTemperatureF():
-    return [DRV_SUCCESS, 32]
+    return -999
 
 
 def getTemperatureStatus():
-    return [DRV_SUCCESS, 1]
+    return DRV_SUCCESS
 
 
 def getTemperatureRange(mintemp, maxtemp):

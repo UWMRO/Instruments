@@ -1,6 +1,6 @@
 import './App.css';
 import ImageTypeSelector from './components/ImageTypeSelector';
-import GetTemp from './components/GetTemp';
+import GetTemp from './components/TempControls';
 import ExposureTypeSelector from './components/SetExposureType';
 import FilterTypeSelector from './components/FilterControls';
 

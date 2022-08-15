@@ -11,6 +11,8 @@ DRV_TEMPERATURE_STABILIZED = 20036
 DRV_NOT_INITIALIZED = 20075
 DRV_ACQUIRING = 0
 
+current_temp = -999
+
 """
 SWIG notes
 SWIG seems to change the API from the docs in two major ways
@@ -25,7 +27,12 @@ def getStatus():
 
 
 def getStatusTEC():
-    return {'status':DRV_NOT_INITIALIZED, 'temperature':-999}
+    return {'status':DRV_NOT_INITIALIZED, 'temperature':current_temp}
+
+
+def setTemperature(input):
+    current_temp = int(input) 
+    return f'Temperature set to {current_temp}!'
 
 
 def getAvailableCameras():
@@ -123,7 +130,7 @@ def noop(*args):
 # Set to noop func instead of defining each to save space
 setCurrentCamera = noop
 setAcquisitionMode = noop
-setTemperature = noop
+#setTemperature = noop
 setShutter = noop
 setFanMode = noop
 coolerOFF = noop

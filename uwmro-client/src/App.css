@@ -2,6 +2,15 @@
   text-align: center;
 }
 
+.exposure-controls label {
+  display:block;
+  margin: 8px;
+} 
+
+.exposure-controls input {
+  margin-left: 4px;
+}
+
 .ImageTypeSelector {
   text-align: left;
   border: 1px solid black;

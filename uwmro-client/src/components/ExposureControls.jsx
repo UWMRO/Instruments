@@ -5,7 +5,7 @@ function ExposureControls({exposureType}) {
     }
 
     function ExposureTimeChanged(e) {
-        const val = parseInt(e.target.value)
+        const val = parseFloat(e.target.value)
         if (isNaN(val)){
             console.log('Not A Number')
         } else {console.log(val)}

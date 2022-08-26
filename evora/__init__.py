@@ -1,5 +1,5 @@
-
 try:
     from .andor import *
 except ImportError:
-    from .dummy import *
+    print('Dummy mode is ACTIVE (Pybind11 wrapper not found.)')
+    from .andor_dummy import *

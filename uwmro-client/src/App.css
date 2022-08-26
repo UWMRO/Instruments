@@ -18,11 +18,17 @@
 
 .Temperature {
   text-align: center;
+  display:block;
 }
 
 .App-logo {
   height: 40vmin;
   pointer-events: none;
+}
+
+.Logo {
+  height: 150px;
+  width: 150px;
 }
 
 @media (prefers-reduced-motion: no-preference) {

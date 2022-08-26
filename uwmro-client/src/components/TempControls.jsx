@@ -1,43 +1,33 @@
-import { useState, Component } from "react";
 import { getTemperature, setTemperature } from "../apiClient";
 
-function GetTemp() {
-    const [variable, setVariable] = useState('initialized');
+function GetTemp({temp, setTemp}) {
+    
 
     async function callGetTemperature() {
-        setVariable(await getTemperature())
+      setTemp(await getTemperature())
+    }
+
+    async function callSetTemperature(e) {
+      e.preventDefault()
+      setTemp(await setTemperature(e))
     }
 
     return (
-      <div className="Temperature">
-        <button onClick={callGetTemperature}>Get Temperature</button>
+      <form onSubmit={callSetTemperature}>Temperature
+        <input onChange={(e) => callSetTemperature(e.target.value)} value={temp} />
+        <button type='submit'>Click To Submit</button>
         <div>
-        {variable}
+          {temp}
         </div>
-      </div>
+        <button onClick={callGetTemperature}>Get Temperature</button>
+      </form>
+      
+            
+      
       
     );
   }
 
-function SetTemp() {
-  const [variable, setVariable] = useState('initialized');
-
-  async function callSetTemperature(e) {
-    setVariable(await setTemperature(e))
-  }
-
-  async function callGetTemperature() {
-    setVariable(await getTemperature())
-}
-
-  <div className="Temperature">
-        <input type='number' value={callGetTemperature} onChange={callSetTemperature}>Set Temperature</input>
-        <div>
-        {variable}
-        </div>
-      </div>
-
-}
   
   export default GetTemp;
   

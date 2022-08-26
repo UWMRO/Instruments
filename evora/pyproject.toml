@@ -1,2 +1,0 @@
-[tool.setuptools]
-packages = ["andor_routines", "andor", "dummy", "andor_error"]

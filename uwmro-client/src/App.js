@@ -11,7 +11,8 @@ function App() {
   const [exposureType, setExposureType] = useState('Single')
   const [imageType, setImageType] = useState('Bias')
   const [filterType, setFilterType] = useState('Ha')
-  const [temp, setTemp] = useState('-999')
+  const [temp, setTemp] = useState()
+  
 
   return (
     <div className='App'> Manastash Ridge Observatory Controls
@@ -21,7 +22,7 @@ function App() {
       <ExposureTypeSelector exposureType={exposureType} setExposureType={setExposureType}/>
       <FilterTypeSelector filterType={filterType} setFilterType={setFilterType}/>
       <ExposureControls exposureType={exposureType}/>
-      <GetTemp/>
+      <GetTemp temp={temp} setTemp={setTemp}/>
     </form>
     </div>
   );

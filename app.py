@@ -22,9 +22,9 @@ def create_app(test_config=None):
     print(f'Startup Status: {andor.initialize()}')
 
     # a simple page that says hello
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
+    @app.route('/getStatus')
+    def getStatus():
+        return str(andor.getStatus())
 
     @app.route('/')
     def index():
@@ -40,9 +40,13 @@ def create_app(test_config=None):
     return app
 
 
-    @app.route('/setTemperature')
+    @app.route('/setTemperature', methods=['POST'])
     def route_setTemperature(input):
-        return andor.setTemperature(input)
+        return str(andor.setTemperature(input))
+
+    @app.route('/getStatusTEC')
+    def route_getTemperature():
+        return str(andor.getStatusTEC())
 
 app = create_app()
 

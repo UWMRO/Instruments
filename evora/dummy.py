@@ -11,7 +11,7 @@ DRV_TEMPERATURE_STABILIZED = 20036
 DRV_NOT_INITIALIZED = 20075
 DRV_ACQUIRING = 0
 
-current_temp = -999
+current_temp = -999.
 
 """
 SWIG notes
@@ -31,8 +31,8 @@ def getStatusTEC():
 
 
 def setTemperature(input):
-    current_temp = int(input) 
-    return f'Temperature set to {current_temp}!'
+    current_temp = float(input) 
+    return current_temp
 
 
 def getAvailableCameras():

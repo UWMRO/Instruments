@@ -1,5 +1,6 @@
 import './App.css';
 import { useState } from "react";
+import { useForm } from 'react-hook-form';
 import ImageTypeSelector from './components/ImageTypeSelector';
 import GetTemp from './components/TempControls';
 import ExposureTypeSelector from './components/SetExposureType';
@@ -17,13 +18,13 @@ function App() {
   return (
     <div className='App'> Manastash Ridge Observatory Controls
     <img src={logo} className='Logo' alt='Logo'/>
-    <form>
+    <fieldset>
       <ImageTypeSelector imageType={imageType} setImageType={setImageType}/>
       <ExposureTypeSelector exposureType={exposureType} setExposureType={setExposureType}/>
       <FilterTypeSelector filterType={filterType} setFilterType={setFilterType}/>
       <ExposureControls exposureType={exposureType}/>
       <GetTemp temp={temp} setTemp={setTemp}/>
-    </form>
+    </fieldset>
     </div>
   );
 }

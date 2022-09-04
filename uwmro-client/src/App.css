@@ -19,6 +19,7 @@
 .Temperature {
   text-align: center;
   display:block;
+  margin-left: 4px;
 }
 
 .App-logo {

@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form"
 import { getTemperature, setTemperature } from "../apiClient";
 
 function GetTemp({temp, setTemp}) {
     const [input, setInput] = useState(temp)
     // const [sent, setSent] = useState(false)
+    const {register, handleSubmit, errors} = useForm()
 
     async function callGetTemperature() {
       setTemp(await getTemperature())
@@ -27,19 +29,17 @@ function GetTemp({temp, setTemp}) {
       
     }
 
+    const onSubmit = (data) => {
+      console.log(data)
+    }
+
     return (
-      <div>Temperature
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <label>Input Temperature</label>
+        <input type='text' {...register('temp', { required: true })}/>
         
-        
-        <input type='text' onChange={(e)=>setInput(e.target.value)}/>
-        {input}
-        <button onClick={sendInputTemp}>Click To Submit</button>
-        
-
-
-        <button onClick={callGetTemperature}>Get Temperature</button>
-        {temp}
-      </div>
+        <input type='submit'/>
+      </form>
       
             
       

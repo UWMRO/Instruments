@@ -1,4 +1,4 @@
-function ExposureControls({exposureType}) {
+function ExposureControls({exposureType, imageType, filterType, temp }) {
 
     function eventChange(e) {
         console.log(e.target.value)

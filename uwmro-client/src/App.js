@@ -2,11 +2,12 @@ import './App.css';
 import { useState } from "react";
 import { useForm } from 'react-hook-form';
 import ImageTypeSelector from './components/ImageTypeSelector';
-import GetTemp from './components/TempControls';
+import TemperatureControls from './components/TempControls';
 import ExposureTypeSelector from './components/SetExposureType';
 import FilterTypeSelector from './components/FilterControls';
 import ExposureControls from './components/ExposureControls';
 import logo from './aueg_logo.png'
+
 
 function App() {
   const [exposureType, setExposureType] = useState('Single')
@@ -22,8 +23,14 @@ function App() {
       <ImageTypeSelector imageType={imageType} setImageType={setImageType}/>
       <ExposureTypeSelector exposureType={exposureType} setExposureType={setExposureType}/>
       <FilterTypeSelector filterType={filterType} setFilterType={setFilterType}/>
-      <ExposureControls exposureType={exposureType}/>
-      <GetTemp temp={temp} setTemp={setTemp}/>
+      <TemperatureControls temp={temp} setTemp={setTemp}/>
+      <ExposureControls 
+        exposureType={exposureType} 
+        imageType={imageType} 
+        filterType={filterType}
+        temp = {temp}
+      />
+      
     </fieldset>
     </div>
   );

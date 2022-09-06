@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form"
 import { getTemperature, setTemperature } from "../apiClient";
 
-function GetTemp({temp, setTemp}) {
+function TemperatureControls({temp, setTemp}) {
     // const [input, setInput] = useState(temp)
     // const [sent, setSent] = useState(false)
     const {register, handleSubmit, errors} = useForm()
@@ -32,15 +32,14 @@ function GetTemp({temp, setTemp}) {
     }
 
     return (
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} className='Temperature'>
         <label>Input Temperature (Celsius)
         <input type='text' {...register('temp', { required: true })} placeholder='temperature (celsius)'/>
         </label>
         <input type='submit'/>
-        
-        <button onClick={callGetTemperature} name='get temp'>Get Temp</button>
-        
         {temp}
+        
+        
       </form>
       
             
@@ -50,5 +49,5 @@ function GetTemp({temp, setTemp}) {
   }
 
   
-  export default GetTemp;
+  export default TemperatureControls;
   

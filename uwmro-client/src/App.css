@@ -16,10 +16,15 @@
   border: 1px solid black;
 }
 
-.Temperature {
+.Temperature label{
   text-align: center;
   display:block;
-  margin-left: 4px;
+  margin: 4px;
+}
+
+.Temperature input {
+  display: inline-block;
+  margin: 4px;
 }
 
 .App-logo {

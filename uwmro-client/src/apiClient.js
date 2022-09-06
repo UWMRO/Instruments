@@ -17,7 +17,16 @@ export async function getTemperature() {
 
 export async function setTemperature(input) {
     //need to pass in input variable into Flask server
-    const response = await fetch('/setTemperature', {method:"POST"})
+    console.log(typeof input)
+    const response = await fetch('/setTemperature', {
+        method:"POST",
+        credentials:"include",
+        body: JSON.stringify(input),
+        cache: "no-cache",
+        headers: new Headers({
+            "content-type": "application/json"
+        })
+    })
 
     const data = await response.json()
 

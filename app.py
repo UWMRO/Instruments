@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, jsonify, make_response
 from evora import dummy as andor #andor
 # app = Flask(__name__)
 
@@ -37,16 +37,26 @@ def create_app(test_config=None):
     def route_getTemperature():
         return str(andor.getStatusTEC()['temperature'])
 
-    return app
+    
 
 
     @app.route('/setTemperature', methods=['POST'])
-    def route_setTemperature(input):
-        return str(andor.setTemperature(input))
+    def route_setTemperature():
+        if request.method == "POST":
+            req = request.get_json(force=True)
+
+            andor.setTemperature(req['temp'])
+            #print(req)
+
+            res = make_response(jsonify(req), 200)
+
+            return res
 
     @app.route('/getStatusTEC')
-    def route_getTemperature():
+    def route_getStatusTEC():
         return str(andor.getStatusTEC())
+
+    return app
 
 app = create_app()
 

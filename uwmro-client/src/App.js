@@ -2,7 +2,8 @@ import './App.css';
 import { useState } from "react";
 import { useForm } from 'react-hook-form';
 import ImageTypeSelector from './components/ImageTypeSelector';
-import TemperatureControls from './components/TempControls';
+import SetTemp from './components/SetTemp';
+import GetTemp from './components/GetTemp';
 import ExposureTypeSelector from './components/SetExposureType';
 import FilterTypeSelector from './components/FilterControls';
 import ExposureControls from './components/ExposureControls';
@@ -14,7 +15,7 @@ function App() {
   const [imageType, setImageType] = useState('Bias')
   const [filterType, setFilterType] = useState('Ha')
   const [temp, setTemp] = useState()
-  
+  const [currTemp, setCurrTemp] = useState()
 
   return (
     <div className='App'> Manastash Ridge Observatory Controls
@@ -23,7 +24,8 @@ function App() {
       <ImageTypeSelector imageType={imageType} setImageType={setImageType}/>
       <ExposureTypeSelector exposureType={exposureType} setExposureType={setExposureType}/>
       <FilterTypeSelector filterType={filterType} setFilterType={setFilterType}/>
-      <TemperatureControls temp={temp} setTemp={setTemp}/>
+      <SetTemp temp={temp} setTemp={setTemp}/>
+      <GetTemp currTemp={currTemp} setCurrTemp={setCurrTemp}/>
       <ExposureControls 
         exposureType={exposureType} 
         imageType={imageType} 

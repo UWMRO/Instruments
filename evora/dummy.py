@@ -30,8 +30,8 @@ def getStatusTEC():
     return {'status':DRV_NOT_INITIALIZED, 'temperature':current_temp}
 
 
-def setTemperature(input):
-    current_temp = float(input) 
+def setTemperature(value):
+    current_temp = float(value) 
     return current_temp
 
 

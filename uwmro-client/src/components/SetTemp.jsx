@@ -5,10 +5,6 @@ function SetTemp({temp, setTemp}) {
 
     const {register, handleSubmit, errors} = useForm()
 
-    async function callGetTemperature() {
-      setTemp(await getTemperature())
-    }
-
     async function callSetTemperature(value) {
       setTemp(await setTemperature(value))
     }
@@ -30,6 +26,7 @@ function SetTemp({temp, setTemp}) {
         <label>Input Temperature (Celsius)
         <input type='text' {...register('temp', { required: true })} placeholder='temperature (celsius)'/>
         </label>
+        {temp}
         <input type='submit'/>
         
         

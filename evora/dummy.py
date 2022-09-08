@@ -1,4 +1,4 @@
-# from PIL import Image
+from PIL import Image
 from numpy import asarray
 import base64
 from io import BytesIO
@@ -31,6 +31,7 @@ def getStatusTEC():
 
 
 def setTemperature(value):
+    global current_temp 
     current_temp = float(value) 
     return current_temp
 
@@ -68,21 +69,21 @@ def abortAcquisition():
     DRV_ACQUIRING = 0
 
 
-def getAcquiredData16(write_var):
-    img = 'space.txt'
+def getAcquiredData():
+    img = 'evora/space.txt'
     if randint(0, 1000) >= 999:
-        img = 'space0.txt'
+        img = 'evora/space0.txt'
 
     with open(img) as f:
         data = asarray(Image.open(BytesIO(base64.b64decode(f.read()))))
 
     # This might not work, passing by reference is weird in Python
-    write_var = data
-    return DRV_SUCCESS
+    
+    return {'data':data, 'status':DRV_SUCCESS}
 
 
 # These functions do the same thing in this context
-getMostRecentImage16 = getAcquiredData16
+getMostRecentImage16 = getAcquiredData
 
 
 def getAcquisitionTimings(exposure, accumulate, kinetic):

@@ -50,13 +50,18 @@ def create_app(test_config=None):
             change_temp = andor.setTemperature(req['temp'])
             app.logger.info(change_temp)
 
-            res = make_response(jsonify(req), 200)
+            res = req['temp']
 
             return res
 
     @app.route('/getStatusTEC')
     def route_getStatusTEC():
         return str(andor.getStatusTEC())
+
+    @app.route('/capture')
+    def route_capture():
+        
+        return andor.getAcquiredData()
 
     return app
 

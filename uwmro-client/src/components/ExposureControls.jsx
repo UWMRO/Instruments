@@ -1,4 +1,6 @@
-function ExposureControls({exposureType, imageType, filterType, temp }) {
+import { capture } from "../apiClient"
+
+function ExposureControls({ exposureType, imageType, filterType, temp }) {
 
     function eventChange(e) {
         console.log(e.target.value)
@@ -11,6 +13,16 @@ function ExposureControls({exposureType, imageType, filterType, temp }) {
         } else {console.log(val)}
     }
 
+    // should call startAcquisition
+    async function getExposure() {
+        const img = await capture()
+        console.log(img)
+    }
+
+    // to-do for get-exposure:
+    // 1.) check each prop for errors
+    // 2.) using each prop, take the image with parameters
+    // 3.) 
 
     return (
       <fieldset className='exposure-controls'> 
@@ -28,7 +40,7 @@ function ExposureControls({exposureType, imageType, filterType, temp }) {
                 <input type='text' name='Number of Exposures' onChange={ExposureTimeChanged}/>
                </label>
           }
-          <button onClick={function(){}}>Get Exposure</button>
+          <button onClick={getExposure}>Get Exposure</button>
 
       </fieldset>
     );

@@ -35,7 +35,7 @@ export async function setTemperature(input) {
 
 export async function capture() {
 
-    const response = await fetch('/setTemperature')
+    const response = await fetch('/capture')
 
     const data = await response.json()
 

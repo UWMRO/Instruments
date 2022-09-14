@@ -33,9 +33,17 @@ export async function setTemperature(input) {
     return data
 }
 
-export async function capture() {
+export async function capture(input) {
 
-    const response = await fetch('/capture')
+    const response = await fetch('/capture', {
+        method:"POST",
+        credentials:"include",
+        body: JSON.stringify(input),
+        cache: "no-cache",
+        headers: new Headers({
+            "content-type": "application/json"
+        })
+    })
 
     const data = await response.json()
 

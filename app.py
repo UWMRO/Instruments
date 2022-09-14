@@ -58,10 +58,20 @@ def create_app(test_config=None):
     def route_getStatusTEC():
         return str(andor.getStatusTEC())
 
-    @app.route('/capture')
+    @app.route('/capture', methods=["POST"])
     def route_capture():
-        
-        return andor.getAcquiredData()
+        if request.method == "POST":
+            req = request.get_json(force=True)
+
+            img = andor.getAcquiredData(
+                req['file_name'],
+                req['exp_time'],
+                req['exp_num'],
+                req['exp_type'],
+                req['img_type'],
+                req['fil_type']
+                )
+            return img
 
     return app
 

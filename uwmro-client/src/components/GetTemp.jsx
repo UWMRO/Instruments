@@ -11,7 +11,7 @@ function GetTemp({currTemp, setCurrTemp}) {
 
 
     return (
-      <fieldset class="Temperature">
+      <fieldset className="Temperature">
         <label> Current Temperature
           <button onClick={callGetTemperature}>Get Temperature</button>
           {currTemp}

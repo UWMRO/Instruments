@@ -3,6 +3,7 @@ from numpy import asarray
 import base64
 from io import BytesIO
 from random import randint
+import time
 
 # Replacement constants, taken from atmcdLXd.h
 DRV_SUCCESS = 20002
@@ -69,10 +70,19 @@ def abortAcquisition():
     DRV_ACQUIRING = 0
 
 
-def getAcquiredData():
+def getAcquiredData(file_name, exp_time, exp_num, exp_type, img_type, fil_type):
     img = 'evora/space.txt'
     if randint(0, 1000) >= 999:
         img = 'evora/space0.txt'
+
+    time_sec = int(exp_time)
+
+    while time_sec:
+        mins, secs = divmod(time_sec, 60)
+        timer = '{:02d}:{:02d}'.format(mins, secs)
+        print(timer, end="\r")
+        time.sleep(1)
+        time_sec -= 1
 
     with open(img) as f:
         data = asarray(Image.open(BytesIO(base64.b64decode(f.read()))))

@@ -44,6 +44,12 @@ def create_app(test_config=None):
 
     @app.route('/setTemperature', methods=['POST'])
     def route_setTemperature():
+        """
+        Sets the temperature of the camera in Celsius. Uses the 'POST' method
+        to take in form requests from the front end.
+
+        Returns the set temperature for display on the front end.
+        """
         if request.method == "POST":
             req = request.get_json(force=True)
 
@@ -60,6 +66,13 @@ def create_app(test_config=None):
 
     @app.route('/capture', methods=["POST"])
     def route_capture():
+        """
+        Attempts to take a picture with the camera. Uses the 'POST' method
+        to take in form requests from the front end.
+
+        TBD: What to return - the fits file or the np array.
+        Throws an error if status code is not 20002 (success).
+        """
         if request.method == "POST":
             req = request.get_json(force=True)
 
@@ -71,7 +84,13 @@ def create_app(test_config=None):
                 req['img_type'],
                 req['fil_type']
                 )
-            return img
+            
+            if img['status'] == 20002:
+                # use astropy here to return a fits file
+                return img['data']
+            else:
+                raise Exception('Capture Unsuccessful')
+            
 
     return app
 

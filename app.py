@@ -76,6 +76,21 @@ def create_app(test_config=None):
         if request.method == "POST":
             req = request.get_json(force=True)
 
+            #refer to pg 41 - 45 of sdk for acquisition mode info
+            if req['exp_type'] == 'Single':
+                andor.setAcquisitionMode(1)
+                
+            elif req['exp_type'] == 'Real Time':
+                andor.setAcquisitionMode(5)
+                andor.setKineticCycleTime(0)
+
+            elif req['exp_type'] == 'Series':
+                andor.setAcquisitionMode(3)
+                andor.setNumberKinetics(int(req['exp_num']))
+                
+            
+            
+
             img = andor.getAcquiredData(
                 req['file_name'],
                 req['exp_time'],

@@ -47,21 +47,21 @@ function ExposureControls({ exposureType, imageType, filterType }) {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className='exposure-controls'>
             
-                <legend>
-                    Exposure Controls
-                </legend>
-                <label> File Name 
-                    <input type='text' {...register('file_name', { required: true })}/>
+            <legend>
+                Exposure Controls
+            </legend>
+            <label> File Name 
+                <input type='text' {...register('file_name', { required: true })}/>
+            </label>
+            <label> Exposure Time
+                <input type='text' {...register('exp_time', { required: true })}/>
+            </label>
+            {exposureType === 'Series'
+            && <label> Number of Exposures
+                <input type='text' {...register('exp_num', { required: false })}/>
                 </label>
-                <label> Exposure Time
-                    <input type='text' {...register('exp_time', { required: true })}/>
-                </label>
-                {exposureType === 'Series'
-                && <label> Number of Exposures
-                    <input type='text' {...register('exp_num', { required: false })}/>
-                    </label>
-                }
-                <button type='submit'>Get Exposure</button>
+            }
+            <button type='submit'>Get Exposure</button>
 
             
         </form>

@@ -79,26 +79,25 @@ def create_app(test_config=None):
             #refer to pg 41 - 45 of sdk for acquisition mode info
             if req['exp_type'] == 'Single':
                 andor.setAcquisitionMode(1)
+                andor.setExposureTime(float(req['exp_time']))
                 
             elif req['exp_type'] == 'Real Time':
                 andor.setAcquisitionMode(5)
+                andor.setExposureTime(0.3)
                 andor.setKineticCycleTime(0)
 
             elif req['exp_type'] == 'Series':
                 andor.setAcquisitionMode(3)
                 andor.setNumberKinetics(int(req['exp_num']))
+                andor.setExposureTime(float(req['exp_time']))
                 
-            
-            
+            status = andor.getStatus()
+            if status == 20002:
+                andor.startAcquisition()
+            else:
+                raise Exception('Acquisition already in progress')
 
-            img = andor.getAcquiredData(
-                req['file_name'],
-                req['exp_time'],
-                req['exp_num'],
-                req['exp_type'],
-                req['img_type'],
-                req['fil_type']
-                )
+            img = andor.getAcquiredData()
             
             if img['status'] == 20002:
                 # use astropy here to return a fits file

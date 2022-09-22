@@ -10,7 +10,8 @@ DRV_SUCCESS = 20002
 DRV_TEMPERATURE_OFF = 20034
 DRV_TEMPERATURE_STABILIZED = 20036
 DRV_NOT_INITIALIZED = 20075
-DRV_ACQUIRING = 0
+DRV_ACQUIRING = 20072
+DRV_IDLE = 20073
 
 current_temp = -999.
 
@@ -24,7 +25,8 @@ SWIG seems to change the API from the docs in two major ways
 
 # Andor SDK replacement functions with return values
 def getStatus():
-    return DRV_NOT_INITIALIZED
+    return DRV_IDLE
+    #return DRV_NOT_INITIALIZED
 
 
 def getStatusTEC():
@@ -70,19 +72,19 @@ def abortAcquisition():
     DRV_ACQUIRING = 0
 
 
-def getAcquiredData(file_name, exp_time, exp_num, exp_type, img_type, fil_type):
+def getAcquiredData():
     img = 'evora/space.txt'
     if randint(0, 1000) >= 999:
         img = 'evora/space0.txt'
 
-    time_sec = int(exp_time)
+    #time_sec = int(exp_time)
 
-    while time_sec:
-        mins, secs = divmod(time_sec, 60)
-        timer = '{:02d}:{:02d}'.format(mins, secs)
-        print(timer, end="\r")
-        time.sleep(1)
-        time_sec -= 1
+    #while time_sec:
+    #    mins, secs = divmod(time_sec, 60)
+    #    timer = '{:02d}:{:02d}'.format(mins, secs)
+    #    print(timer, end="\r")
+    #    time.sleep(1)
+    #    time_sec -= 1
 
     with open(img) as f:
         data = asarray(Image.open(BytesIO(base64.b64decode(f.read()))))

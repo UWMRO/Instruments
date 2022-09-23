@@ -92,7 +92,7 @@ def create_app(test_config=None):
                 andor.setExposureTime(float(req['exp_time']))
                 
             status = andor.getStatus()
-            if status == 20002:
+            if status == 20073:
                 andor.startAcquisition()
             else:
                 raise Exception('Acquisition already in progress')

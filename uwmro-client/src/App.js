@@ -9,6 +9,7 @@ import FilterTypeSelector from './components/FilterControls';
 import ExposureControls from './components/ExposureControls';
 import logo from './aueg_logo.png'
 
+// https://github.com/ericmandel/js9
 
 function App() {
   const [exposureType, setExposureType] = useState('Single')

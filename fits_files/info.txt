@@ -1,0 +1,3 @@
+This folder should hold all of the fits files the camera generates.
+These files will then be used in tandem with JS9.
+https://github.com/ericmandel/js9

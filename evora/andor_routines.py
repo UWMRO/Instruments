@@ -1,4 +1,8 @@
-import andor
+try:
+    import andor
+    andor.initialize()
+except:
+    import dummy as andor
 
 # biases: Readout noise from camera (effectively 0 s exposure)
 # flats: take an image with even lighting (i.e. the white paint of the dome)

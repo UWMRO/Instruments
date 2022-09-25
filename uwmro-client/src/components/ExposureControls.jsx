@@ -28,20 +28,12 @@ function ExposureControls({ exposureType, imageType, filterType }) {
     // 3.) 
 
     const onSubmit = (data) => {
-        console.log(data.file_name)
-        console.log(data.exp_time)
-        console.log(data.exp_num)
-        
         data.exp_type = exposureType
-        console.log(data.exp_type)
-
         data.img_type = imageType
-        console.log(data.img_type)
         data.fil_type = filterType
-        console.log(data.fil_type)
 
-        capture(data)
-        console.log('captured!')
+        const message = capture(data)
+        console.log(message)
     }
 
     return (
@@ -53,9 +45,11 @@ function ExposureControls({ exposureType, imageType, filterType }) {
             <label> File Name 
                 <input type='text' {...register('file_name', { required: true })}/>
             </label>
-            <label> Exposure Time
+            {exposureType !== 'Real Time'
+            && <label> Exposure Time
                 <input type='text' {...register('exp_time', { required: true })}/>
-            </label>
+                </label>
+            }
             {exposureType === 'Series'
             && <label> Number of Exposures
                 <input type='text' {...register('exp_num', { required: false })}/>

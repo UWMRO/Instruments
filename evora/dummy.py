@@ -126,8 +126,8 @@ def getHSSpeed(channel, typ, index, speed):
     return 1
 
 
-def getDetector(xpixels, ypixels):
-    return 1
+def getDetector():
+    return {'dimensions':(-1,-1), 'status':DRV_SUCCESS}
 
 
 def getAcquisitionProgress(acc, series):

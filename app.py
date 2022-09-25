@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, jsonify, make_response
 from evora import dummy as andor #andor
+from andor_routines import startup
+from astropy.io import fits
 import logging
 
 # app = Flask(__name__)
@@ -22,8 +24,9 @@ def create_app(test_config=None):
     else:
         # load the test config if passed in
         app.config.from_mapping(test_config)
+    start = startup()
 
-    print(f'Startup Status: {andor.initialize()}')
+    app.logger.info(f"Startup Status: {start['status']}")
 
     # a simple page that says hello
     @app.route('/getStatus')
@@ -82,6 +85,7 @@ def create_app(test_config=None):
                 andor.setExposureTime(float(req['exp_time']))
                 
             elif req['exp_type'] == 'Real Time':
+                # this uses "run till abort" mode - how do we abort it?
                 andor.setAcquisitionMode(5)
                 andor.setExposureTime(0.3)
                 andor.setKineticCycleTime(0)
@@ -95,15 +99,17 @@ def create_app(test_config=None):
             if status == 20073:
                 andor.startAcquisition()
             else:
-                raise Exception('Acquisition already in progress')
+                return 'Acquisition already in progress'
 
             img = andor.getAcquiredData()
             
             if img['status'] == 20002:
-                # use astropy here to return a fits file
-                return img['data']
+                # use astropy here to write a fits file
+                hdu = fits.PrimaryHDU(img['data'])
+                hdu.writeto(f"fits_files/{req['file_name']}.fits", overwrite=True)
+                return 'Capture Successful'
             else:
-                raise Exception('Capture Unsuccessful')
+                return 'Capture Unsuccessful'
             
 
     return app

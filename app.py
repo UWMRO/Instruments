@@ -79,7 +79,23 @@ def create_app(test_config=None):
         if request.method == "POST":
             req = request.get_json(force=True)
 
-            #refer to pg 41 - 45 of sdk for acquisition mode info
+            dim = andor.getDetector()['dimensions']
+
+            # check if acquisition is already in progress
+            status = andor.getStatus()
+            if status == 20072:
+                return 'Acquisition already in progress.'
+
+            # handle img type
+            if req['img_type'] == 'bias':
+                andor.setShutter(1, 2, 50, 50)
+                andor.setImage(1, 1, 1, dim[0], 1, dim[1])
+            else:
+                andor.setShutter(1, 0, 50, 50)
+                andor.setImage(1, 1, 1, dim[0], 1, dim[1])
+
+            # handle exposure type
+            # refer to pg 41 - 45 of sdk for acquisition mode info
             if req['exp_type'] == 'Single':
                 andor.setAcquisitionMode(1)
                 andor.setExposureTime(float(req['exp_time']))
@@ -95,20 +111,28 @@ def create_app(test_config=None):
                 andor.setNumberKinetics(int(req['exp_num']))
                 andor.setExposureTime(float(req['exp_time']))
                 
+            andor.startAcquisition()
             status = andor.getStatus()
-            if status == 20073:
-                andor.startAcquisition()
-            else:
-                return 'Acquisition already in progress'
+            while (status == 20072):
+                status = andor.getStatus()
+                app.logger.info('Acquisition in progress')
 
-            img = andor.getAcquiredData()
+            #if status == 20073:
+            #    andor.startAcquisition()
+            #else:
+            #    return 'Acquisition already in progress'
+
+            img = andor.getAcquiredData(dim)
             
             if img['status'] == 20002:
                 # use astropy here to write a fits file
+                andor.setShutter(1, 0, 50, 50)
                 hdu = fits.PrimaryHDU(img['data'])
                 hdu.writeto(f"fits_files/{req['file_name']}.fits", overwrite=True)
                 return 'Capture Successful'
+                # next thing to do - utilize js9
             else:
+                andor.setShutter(1, 0, 50, 50)
                 return 'Capture Unsuccessful'
             
 

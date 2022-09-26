@@ -72,7 +72,7 @@ def abortAcquisition():
     DRV_ACQUIRING = 0
 
 
-def getAcquiredData():
+def getAcquiredData(dim):
     img = 'evora/space.txt'
     if randint(0, 1000) >= 999:
         img = 'evora/space0.txt'

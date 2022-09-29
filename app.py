@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, jsonify, make_response
 from evora import dummy as andor #andor
-from andor_routines import startup
+from andor_routines import startup, activateCooling, deactivateCooling
 from astropy.io import fits
 import logging
 
@@ -56,8 +56,15 @@ def create_app(test_config=None):
         if request.method == "POST":
             req = request.get_json(force=True)
 
-            change_temp = andor.setTemperature(req['temp'])
-            app.logger.info(change_temp)
+            #change_temp = andor.setTemperature(req['temp'])
+            activateCooling(req['temp'])
+
+            curr_temp = andor.getStatusTEC()['temperature']
+            while curr_temp != req['temp']:
+                curr_temp = andor.getStatusTEC()['temperature']
+            deactivateCooling()
+
+            app.logger.info(andor.getStatusTEC()['temperature'])
 
             res = req['temp']
 

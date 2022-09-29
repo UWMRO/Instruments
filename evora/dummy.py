@@ -38,6 +38,8 @@ def setTemperature(value):
     current_temp = float(value) 
     return current_temp
 
+setTargetTEC = setTemperature
+
 
 def getAvailableCameras():
     return 1

@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form"
 function ExposureControls({ exposureType, imageType, filterType }) {
 
     const {register, handleSubmit, errors} = useForm()
-    const [state, setState] = 
+    // const [state, setState] = 
 
     function eventChange(e) {
         console.log(e.target.value)

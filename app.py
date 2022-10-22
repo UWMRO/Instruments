@@ -54,6 +54,7 @@ def create_app(test_config=None):
         Returns the set temperature for display on the front end.
         """
         if request.method == "POST":
+            app.logger.info('setting temperature')
             req = request.get_json(force=True)
 
             #change_temp = andor.setTemperature(req['temp'])
@@ -91,7 +92,7 @@ def create_app(test_config=None):
             # check if acquisition is already in progress
             status = andor.getStatus()
             if status == 20072:
-                return 'Acquisition already in progress.'
+                return str('Acquisition already in progress.')
 
             # handle img type
             if req['img_type'] == 'bias':
@@ -136,11 +137,11 @@ def create_app(test_config=None):
                 andor.setShutter(1, 0, 50, 50)
                 hdu = fits.PrimaryHDU(img['data'])
                 hdu.writeto(f"fits_files/{req['file_name']}.fits", overwrite=True)
-                return 'Capture Successful'
+                return str('Capture Successful')
                 # next thing to do - utilize js9
             else:
                 andor.setShutter(1, 0, 50, 50)
-                return 'Capture Unsuccessful'
+                return str('Capture Unsuccessful')
             
 
     return app
@@ -149,4 +150,4 @@ app = create_app()
 
 
 if __name__ == '__main__':
-    app.run(port=3000)
+    app.run(host= 'localhost', port=3000)

@@ -10,7 +10,7 @@ function SetTemp({temp, setTemp}) {
     }
 
 
-    const onSubmit = (data) => {
+    const onSubmit = async(data) => {
       const val = parseInt(data.temp)
         if (isNaN(val)){
             console.log('Not A Number')

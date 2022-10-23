@@ -1,5 +1,5 @@
 import andor_wrapper as wrapper
-from error_codes import ERROR_CODES
+from andor_error import ERROR_CODES, AndorCameraError
 # this wrapper layer adds in error cases only
 
 EXCLUDE = [
@@ -20,15 +20,6 @@ RETURNS_DICT = [
     'getAcquisitionTimings'
 ]
 
-class AndorCameraError(Exception):
-    def __init__(self, error_code):
-        self.error_code = error_code
-        super().__init__(ERROR_CODES[self.error_code])
-
-    def __str__(self):
-        error_info = ERROR_CODES[self.error_code]
-        return f'({self.error_code}) {error_info[0]}. {error_info[1]}'
-        
 def errorDecorator(pybind11_func):
     def wrapped_function(*args, **kwargs):
         error_code = pybind11_func(*args, **kwargs)

@@ -86,6 +86,11 @@ def create_app(test_config=None):
         uploads = os.path.join(current_app.root_path, 'uploads/')
         return send_from_directory(uploads, filename, as_attachment=True)
 
+    @app.route('/testLongExposure')
+    def route_testLongExposure():
+        acquisition((1024, 1024), exposure_time=10)
+        return 'Finished Acquiring after 10s'
+
     @app.route('/capture', methods=["POST"])
     def route_capture():
         """

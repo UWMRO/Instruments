@@ -136,7 +136,7 @@ def create_app(test_config=None):
                 # use astropy here to write a fits file
                 andor.setShutter(1, 0, 50, 50)
                 hdu = fits.PrimaryHDU(img['data'])
-                hdu.writeto(f"fits_files/{req['file_name']}.fits", overwrite=True)
+                hdu.writeto(f"server/fits_files/{req['file_name']}.fits", overwrite=True)
                 return str('Capture Successful')
                 # next thing to do - utilize js9
             else:
@@ -150,4 +150,4 @@ app = create_app()
 
 
 if __name__ == '__main__':
-    app.run(host= 'localhost', port=3000)
+    app.run(host='localhost', port=3000)

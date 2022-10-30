@@ -28,7 +28,7 @@ function ExposureControls({ exposureType, imageType, filterType }) {
     // 2.) using each prop, take the image with parameters
     // 3.) 
 
-    const onSubmit = async(data) => {
+    const onSubmit = async data => {
         data.exp_type = exposureType
         data.img_type = imageType
         data.fil_type = filterType

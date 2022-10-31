@@ -75,9 +75,9 @@ def abortAcquisition():
 
 
 def getAcquiredData(dim):
-    img = 'evora/space.txt'
+    img = 'server/evora/space.txt'
     if randint(0, 1000) >= 999:
-        img = 'evora/space0.txt'
+        img = 'server/evora/space0.txt'
 
     #time_sec = int(exp_time)
 
@@ -87,6 +87,9 @@ def getAcquiredData(dim):
     #    print(timer, end="\r")
     #    time.sleep(1)
     #    time_sec -= 1
+    
+    #import os
+    #list = os.listdir('.')
 
     with open(img) as f:
         data = asarray(Image.open(BytesIO(base64.b64decode(f.read()))))

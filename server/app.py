@@ -3,6 +3,7 @@ from evora import dummy as andor #andor
 from andor_routines import startup, activateCooling, deactivateCooling
 from astropy.io import fits
 import logging
+import socket
 
 # app = Flask(__name__)
 
@@ -11,6 +12,13 @@ import logging
 #except(ImportError):
 #    print("COULD NOT GET DRIVERS/SDK, STARTING IN DUMMY MODE")
     # TODO: add dummy server if necessary
+
+#filter server
+#try:
+#    connection = socket.create_connection(('localhost', 3002))
+#except Exception:
+#    connection = socket.create_connection(('localhost', 5503))
+
 
 def create_app(test_config=None):
     # create and configure the app
@@ -75,6 +83,17 @@ def create_app(test_config=None):
     def route_getStatusTEC():
         return str(andor.getStatusTEC())
 
+    @app.route('/get_filter_position')
+    def route_get_filter():
+        pass
+
+    @app.route('/setFilterPosition')
+    def route_set_filter():
+        pass
+
+    def get_filter():
+        pass
+
     @app.route('/capture', methods=["POST"])
     def route_capture():
         """
@@ -136,6 +155,10 @@ def create_app(test_config=None):
                 # use astropy here to write a fits file
                 andor.setShutter(1, 0, 50, 50)
                 hdu = fits.PrimaryHDU(img['data'])
+                hdu.header['EXP_TIME'] = (float(req['exp_time']), "Exposure Time (Seconds)")
+                hdu.header['EXP_TYPE'] = (str(req['exp_type']), "Exposure Type (Single, Real Time, or Series)")
+                hdu.header['IMG_TYPE'] = (str(req['img_type']), "Image Type (Bias, Flat, Dark, or Object)")
+                hdu.header['FILTER'] = (str(req['fil_type']), "Filter (Ha, B, V, g, r)")
                 hdu.writeto(f"server/fits_files/{req['file_name']}.fits", overwrite=True)
                 return str('Capture Successful')
                 # next thing to do - utilize js9

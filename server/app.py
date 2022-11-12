@@ -83,7 +83,7 @@ def create_app(test_config=None):
     def route_testReturnFITS():
         acq = acquisition((1024, 1024), exposure_time=0.1)
         
-        from astropy.io import fits
+
         hdu = fits.PrimaryHDU(data=acq['data'])
         filename = f'{datetime.now().strftime("%m-%d-%Y_T%H%M%S")}.fits'
         hdu.writeto('./fits_files/' + filename)

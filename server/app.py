@@ -86,10 +86,10 @@ def create_app(test_config=None):
         from astropy.io import fits
         hdu = fits.PrimaryHDU(data=acq['data'])
         filename = f'{datetime.now().strftime("%m-%d-%Y_T%H%M%S")}.fits'
-        hdu.writeto('./uploads/' + filename)
+        hdu.writeto('./fits_files/' + filename)
         
         # np.savetxt('./uploads/' + filename, acq['data'], delimiter=',')
-        uploads = os.path.join(current_app.root_path, 'uploads/')
+        uploads = os.path.join(current_app.root_path, './fits_files/')
         return send_from_directory(uploads, filename, as_attachment=True)
 
     @app.route('/testLongExposure')

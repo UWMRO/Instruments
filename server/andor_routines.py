@@ -2,7 +2,6 @@ try:
     import evora.andor as andor
     andor.initialize()
 except:
-    raise
     import evora.dummy as andor
 
 # biases: Readout noise from camera (effectively 0 s exposure)
@@ -59,4 +58,3 @@ def acquireBias(dim):
     andor.setShutter(1, 0, 50, 50)
 
     return image
-

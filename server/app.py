@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, jsonify, make_response, send_from_directory, current_app
-# from evora import dummy as andor #andor
-import evora.andor as andor
+from evora import dummy as andor #andor
+# import evora.andor as andor
 from andor_routines import startup, activateCooling, deactivateCooling, acquisition
 from astropy.io import fits
 import logging

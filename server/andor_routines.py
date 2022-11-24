@@ -58,4 +58,3 @@ def acquireBias(dim):
     andor.setShutter(1, 0, 50, 50)
 
     return image
-

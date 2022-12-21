@@ -50,6 +50,23 @@ export async function capture(input) {
     return data
 }
 
+export async function setFilter(input) {
+
+    const response = await fetch('/setFilter', {
+        method:"POST",
+        credentials:"include",
+        body: JSON.stringify(input),
+        cache: "no-cache",
+        headers: new Headers({
+            "content-type": "application/json"
+        })
+    })
+
+    const data = await response.json()
+
+    return data
+}
+
 export async function getStatusTEC() {
 
     const response = await fetch('/getStatusTEC')

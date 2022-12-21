@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, jsonify, make_response, send_from_directory, current_app
 from evora import dummy as andor #andor
+from evora.dummy_fw import main
+import asyncio
 # import evora.andor as andor
 from andor_routines import startup, activateCooling, deactivateCooling, acquisition
 from astropy.io import fits
@@ -190,10 +192,25 @@ def create_app(test_config=None):
                 return str('Capture Unsuccessful')
             
 
+    @app.route('/fw_test')
+    def route_fw_test():
+        """
+        Tests the example server server.py
+        """
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect(('127.0.0.1', 5503))
+        s.send(b'home\n')
+        received = s.recv(100).decode()
+        s.close()
+        return received
+        #pass
+
     return app
 
 app = create_app()
 
 
 if __name__ == '__main__':
+    
     app.run(host= 'localhost', port=3000)
+    

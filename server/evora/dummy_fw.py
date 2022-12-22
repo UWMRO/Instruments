@@ -23,23 +23,26 @@ async def server_handler(reader, writer):
         try:
             if data_str.startswith("home"):
                 await asyncio.sleep(10)
-                writer.write(b"Filter Wheel has homed\n")
+                writer.write(b"Success! Filter Wheel has homed to position 0.\n")
                 filter_pos = 0
             elif data_str.startswith("move"):
                 if len(data_str.split()) >= 2:
                     try:
                         if int(data_str.split()[1]) not in range(0, 6):
-                            raise Exception('Invalid position number. Position numbers range from 0 to 5.\n')
+                            writer.write("""Error: Invalid position number.
+                                            Valid position numbers range from 0 to 5.\n""")
+                            break
+                        await asyncio.sleep(5)
                         filter_pos = int(data_str.split()[1])
-                        message = f"moved to filter position {data_str.split()[1]}\n"
+                        message = f"Success! Moved to filter position {data_str.split()[1]}\n"
                         writer.write(message.encode('utf-8'))
                     except ValueError:
-                        writer.write(b"""Invalid position character. 
+                        writer.write(b"""Error: Invalid position character. 
                                         Position character must be a number range from 0 to 5.\n""")
                 else:
-                    writer.write(b'Error while moving filter wheel.\n')
+                    writer.write(b'Error: Unknown error occurred while moving filter wheel.\n')
             elif data_str.startswith('getFilter'):
-                message = f"moved to filter position {filter_pos}\n"
+                message = f"Success! Current filter position: {filter_pos}\n"
                 writer.write(message.encode('utf-8'))
                 
             else:

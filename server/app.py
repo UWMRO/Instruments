@@ -93,12 +93,43 @@ def create_app(test_config=None):
     def route_get_filter():
         pass
 
-    @app.route('/setFilterPosition')
+    @app.route('/setFilter')
     def route_set_filter():
-        pass
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        req = request.get_json(force=True)
+        s.connect(('127.0.0.1', 5503))
+        #if req['value']
+        s.send(b'home\n')
+        received = s.recv(100).decode()
+        s.close()
+        return received
 
-    def get_filter():
-        pass
+    def set_filter(filter):
+        # these filter positions are placeholders - need to find which filter corresponds
+        # to each position on the wheel
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect(('127.0.0.1', 5503))
+
+        filter_dict = {'Ha': 1,
+                       'B' : 2,
+                       'V' : 3,
+                       'g': 4,
+                       'r': 5}
+
+        pos_str = f"move {filter_dict[filter]}\n"
+        s.send(pos_str.encode('utf-8'))
+        received = s.recv(100).decode()
+        s.close()
+        return received
+        
+    def home_filter():
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        req = request.get_json(force=True)
+        s.connect(('127.0.0.1', 5503))
+        s.send(b'home\n')
+        received = s.recv(100).decode()
+        s.close()
+        return received
     
     @app.route('/testReturnFITS', methods=['GET'])
     def route_testReturnFITS():
@@ -136,6 +167,13 @@ def create_app(test_config=None):
             status = andor.getStatus()
             if status == 20072:
                 return str('Acquisition already in progress.')
+
+            #handle filter type - untested
+            filter_msg = set_filter(req['fil_type'])
+            if filter_msg.startswith('Error'):
+                raise Exception(filter_msg)
+            else:
+                app.logger.info(filter_msg)
 
             # handle img type
             if req['img_type'] == 'bias':
@@ -178,6 +216,7 @@ def create_app(test_config=None):
             if img['status'] == 20002:
                 # use astropy here to write a fits file
                 andor.setShutter(1, 0, 50, 50)
+                home_filter()
                 hdu = fits.PrimaryHDU(img['data'])
                 hdu.header['EXP_TIME'] = (float(req['exp_time']), "Exposure Time (Seconds)")
                 hdu.header['EXP_TYPE'] = (str(req['exp_type']), "Exposure Type (Single, Real Time, or Series)")
@@ -189,6 +228,7 @@ def create_app(test_config=None):
                 # next thing to do - utilize js9
             else:
                 andor.setShutter(1, 0, 50, 50)
+                home_filter()
                 return str('Capture Unsuccessful')
             
 
@@ -211,6 +251,5 @@ app = create_app()
 
 
 if __name__ == '__main__':
-    
     app.run(host= 'localhost', port=3000)
     

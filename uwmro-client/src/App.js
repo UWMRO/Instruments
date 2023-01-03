@@ -7,6 +7,7 @@ import GetTemp from './components/GetTemp';
 import ExposureTypeSelector from './components/SetExposureType';
 import FilterTypeSelector from './components/FilterControls';
 import ExposureControls from './components/ExposureControls';
+import PingServer from './components/PingServer';
 import logo from './aueg_logo.png'
 
 // https://github.com/ericmandel/js9
@@ -22,6 +23,7 @@ function App() {
     <div className='App'> Manastash Ridge Observatory Controls
     <img src={logo} className='Logo' alt='Logo'/>
     <fieldset>
+      <PingServer/>
       <ImageTypeSelector imageType={imageType} setImageType={setImageType}/>
       <ExposureTypeSelector exposureType={exposureType} setExposureType={setExposureType}/>
       <FilterTypeSelector filterType={filterType} setFilterType={setFilterType}/>

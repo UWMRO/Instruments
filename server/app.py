@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, jsonify, make_response, send_from_directory, current_app
 from evora import dummy as andor #andor
-from evora.dummy_fw import main
+#from dummy_fw import main as start_fw
 import asyncio
 # import evora.andor as andor
 from andor_routines import startup, activateCooling, deactivateCooling, acquisition
@@ -11,6 +11,7 @@ import os
 import numpy as np
 from datetime import datetime
 
+logging.getLogger('PIL').setLevel(logging.WARNING)
 # app = Flask(__name__)
 
 #try:
@@ -41,6 +42,7 @@ def create_app(test_config=None):
     start = startup()
 
     app.logger.info(f"Startup Status: {start['status']}")
+    
 
     # a simple page that says hello
     @app.route('/getStatus')
@@ -87,7 +89,7 @@ def create_app(test_config=None):
 
     @app.route('/getStatusTEC')
     def route_getStatusTEC():
-        return str(andor.getStatusTEC())
+        return str(andor.getStatusTEC()['status'])
 
     @app.route('/get_filter_position')
     def route_get_filter():
@@ -107,6 +109,9 @@ def create_app(test_config=None):
     def set_filter(filter):
         # these filter positions are placeholders - need to find which filter corresponds
         # to each position on the wheel
+        """
+        Moves the filter to the given position.
+        """
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect(('127.0.0.1', 5503))
 
@@ -123,6 +128,9 @@ def create_app(test_config=None):
         return received
         
     def home_filter():
+        """
+        Homes the filter back to its default position.
+        """
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         req = request.get_json(force=True)
         s.connect(('127.0.0.1', 5503))
@@ -239,7 +247,7 @@ def create_app(test_config=None):
         """
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect(('127.0.0.1', 5503))
-        s.send(b'home\n')
+        s.send(b'getFilter\n')
         received = s.recv(100).decode()
         s.close()
         return received

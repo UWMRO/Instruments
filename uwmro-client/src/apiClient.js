@@ -75,3 +75,12 @@ export async function getStatusTEC() {
 
     return data
 }
+
+export async function getFilterWheelStatus() {
+
+    const response = await fetch('/fw_test')
+
+    const data = await response.json()
+
+    return data
+}

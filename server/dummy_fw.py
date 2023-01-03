@@ -26,14 +26,14 @@ async def server_handler(reader, writer):
                 writer.write(b"Success! Filter Wheel has homed to position 0.\n")
                 filter_pos = 0
             elif data_str.startswith("move"):
-                if len(data_str.split()) >= 2:
+                if len(data_str.split(' ')) >= 2:
                     try:
-                        if int(data_str.split()[1]) not in range(0, 6):
+                        if int(data_str.split(' ')[1]) not in range(0, 6):
                             writer.write("""Error: Invalid position number.
                                             Valid position numbers range from 0 to 5.\n""")
                             break
                         await asyncio.sleep(5)
-                        filter_pos = int(data_str.split()[1])
+                        filter_pos = int(data_str.split(' ')[1])
                         message = f"Success! Moved to filter position {data_str.split()[1]}\n"
                         writer.write(message.encode('utf-8'))
                     except ValueError:
@@ -46,10 +46,10 @@ async def server_handler(reader, writer):
                 writer.write(message.encode('utf-8'))
                 
             else:
-                writer.write(b"Invalid\n")
+                writer.write(b"Error: Invalid command\n")
         except Exception as err:
             writer.write(str(err).encode() + b'\n')
-        writer.drain()
+        await writer.drain()
 
 
 async def main():

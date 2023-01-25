@@ -16,6 +16,27 @@ from datetime import datetime
 #    print("COULD NOT GET DRIVERS/SDK, STARTING IN DUMMY MODE")
     # TODO: add dummy server if necessary
 
+
+# adds .fits extension to the given file name
+# if it is empty, default name is image.fits
+# if the file already exists, it will be saved as
+# name(0), name(1), name(2), ..., name(n)
+def formatFileName(file):
+    # ensure has extension
+    if file == "":
+        file = "image.fits"
+    if file[-1] == ".":
+        file += "fits"
+    if len(file) < 5 or file[-5:] != ".fits":
+        file += ".fits"
+    # ensure nothing gets overwritten
+    num = 0
+    length = len(file[0:-5])
+    while os.path.isfile(f"fits_files/{file}"):
+        file = file[0:length] + f"({num})" + file[-5:]
+        num += 1
+    return file
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
@@ -158,12 +179,14 @@ def create_app(test_config=None):
                 # use astropy here to write a fits file
                 andor.setShutter(1, 0, 50, 50)
                 hdu = fits.PrimaryHDU(img['data'])
-                hdu.writeto(f"fits_files/{req['file_name']}.fits", overwrite=True)
-                return str('Capture Successful')
+                fname = req['file_name']
+                fname = formatFileName(fname)
+                hdu.writeto(f"fits_files/{fname}", overwrite=True)
+                return {"message": str('Capture Successful')}
                 # next thing to do - utilize js9
             else:
                 andor.setShutter(1, 0, 50, 50)
-                return str('Capture Unsuccessful')
+                return {"message": str('Capture Unsuccessful')}
             
 
     return app

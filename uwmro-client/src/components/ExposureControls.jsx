@@ -44,7 +44,7 @@ function ExposureControls({ exposureType, imageType, filterType }) {
                 Exposure Controls
             </legend>
             <label> File Name 
-                <input type='text' {...register('file_name', { required: true })}/>
+                <input type='text' {...register('file_name', { required: false })} placeholder="image.fits"/>
             </label>
             {exposureType !== 'Real Time'
             && <label> Exposure Time

@@ -20,8 +20,9 @@ function App() {
   const [currTemp, setCurrTemp] = useState()
 
   return (
-    <div className='App'> Manastash Ridge Observatory Controls
-    <img src={logo} className='Logo' alt='Logo'/>
+    <div className='App'> 
+    <a href='https://sites.google.com/a/uw.edu/mro/' target='_blank'><img src={logo} className='Logo' alt='Logo'/></a>
+    <h1 className='Title'>Manastash Ridge Observatory Controls</h1>
     <fieldset>
       <PingServer/>
       <ImageTypeSelector imageType={imageType} setImageType={setImageType}/>

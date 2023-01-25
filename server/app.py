@@ -17,18 +17,25 @@ from datetime import datetime
     # TODO: add dummy server if necessary
 
 
-# adds .fits extension to the given file name
-# if it is empty, default name is image.fits
-# if the file already exists, it will be saved as
-# name(0), name(1), name(2), ..., name(n)
+
 def formatFileName(file):
-    # ensure has extension
-    if file == "":
+    """
+    Formats the given file name to be valid.\n
+    If the file contains invalid characters or is empty, image.fits will be used.
+    if the file already exists, it will be saved as: name(0), name(1), name(2), ..., name(n)
+    """
+
+    invalid_characters = [":", "<", ">", "/", "\\", "\"", "|", "?", "*", ".."]
+    # if invalid filename, use image.fits
+    if file == "" or any(c in file for c in invalid_characters):
         file = "image.fits"
+    
+    # ensure extension is .fits
     if file[-1] == ".":
         file += "fits"
     if len(file) < 5 or file[-5:] != ".fits":
         file += ".fits"
+    
     # ensure nothing gets overwritten
     num = 0
     length = len(file[0:-5])

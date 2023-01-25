@@ -1,10 +1,15 @@
 import { capture } from "../apiClient"
 import { useForm } from "react-hook-form"
+import {useEffect, useState} from "react"
+
 
 function ExposureControls({ exposureType, imageType, filterType }) {
 
+    const [playing, setPlaying] = useState(false)
+    const [audio] = useState(new Audio(process.env.PUBLIC_URL + '/tadaa-47995.mp3'))
+
     const {register, handleSubmit, errors} = useForm()
-    // const [state, setState] = 
+    // const [state, setState] =
 
     function eventChange(e) {
         console.log(e.target.value)
@@ -26,7 +31,7 @@ function ExposureControls({ exposureType, imageType, filterType }) {
     // to-do for get-exposure:
     // 1.) check each prop for errors
     // 2.) using each prop, take the image with parameters
-    // 3.) 
+    // 3.)
 
     const onSubmit = async data => {
         data.exp_type = exposureType
@@ -35,15 +40,32 @@ function ExposureControls({ exposureType, imageType, filterType }) {
 
         const message = await capture(data)
         console.log(message)
+
+        // Play sounds after exposure completes.
+        console.log('here')
+        setPlaying(true)
     }
+
+    useEffect(() => {
+        playing ? audio.play() : audio.pause();
+      },
+      [playing, audio]
+    );
+
+    useEffect(() => {
+      audio.addEventListener('ended', () => setPlaying(false));
+      return () => {
+        audio.removeEventListener('ended', () => setPlaying(false));
+      };
+    }, [audio]);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className='exposure-controls'>
-            
+
             <legend>
                 Exposure Controls
             </legend>
-            <label> File Name 
+            <label> File Name
                 <input type='text' {...register('file_name', { required: true })}/>
             </label>
             {exposureType !== 'Real Time'
@@ -58,14 +80,10 @@ function ExposureControls({ exposureType, imageType, filterType }) {
             }
             <button type='submit'>Get Exposure</button>
 
-            
         </form>
     );
 
 
   }
-  
-  
-  
-  
+
   export default ExposureControls;

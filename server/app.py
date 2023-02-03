@@ -10,6 +10,10 @@ import socket
 import os
 import numpy as np
 from datetime import datetime
+"""
+ dev note: I also ran pip install aioflask and pip install asgiref to try to give flask async abilities.
+ this is for handling requests from the filter wheel that may take some time.
+"""
 
 logging.getLogger('PIL').setLevel(logging.WARNING)
 # app = Flask(__name__)
@@ -245,14 +249,14 @@ def create_app(test_config=None):
         return send_from_directory(uploads, file_name, as_attachment=True)
 
     @app.route('/fw_test')
-    def route_fw_test():
+    async def route_fw_test():
         """
         Tests the example server server.py
         """
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect(('127.0.0.1', 5503))
         s.send(b'getFilter\n')
-        received = s.recv(100).decode()
+        received = await s.recv(1000).decode()
         s.close()
         return received
         #pass

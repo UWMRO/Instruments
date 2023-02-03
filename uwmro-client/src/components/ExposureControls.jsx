@@ -23,10 +23,6 @@ function ExposureControls({ exposureType, imageType, filterType }) {
         console.log(img)
     }
 
-    // to-do for get-exposure:
-    // 1.) check each prop for errors
-    // 2.) using each prop, take the image with parameters
-    // 3.) 
 
     const onSubmit = async data => {
         data.exp_type = exposureType

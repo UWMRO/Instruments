@@ -53,7 +53,7 @@ async def server_handler(reader, writer):
 
 
 async def main():
-    server = await asyncio.start_server(server_handler, host="0.0.0", port=5503)
+    server = await asyncio.start_server(server_handler, host='127.0.0.1', port=5503)
 
     addrs = ", ".join(str(sock.getsockname()) for sock in server.sockets)
     print(f"Serving on {addrs}")

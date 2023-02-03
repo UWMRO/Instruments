@@ -75,9 +75,9 @@ def abortAcquisition():
 
 
 def getAcquiredData(dim):
-    img = 'server/evora/space.txt'
+    img = 'evora/space.txt'
     if randint(0, 1000) >= 999:
-        img = 'server/evora/space0.txt'
+        img = 'evora/space0.txt'
 
     #time_sec = int(exp_time)
 

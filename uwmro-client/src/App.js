@@ -1,5 +1,5 @@
 import './App.css';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from 'react-hook-form';
 import ImageTypeSelector from './components/ImageTypeSelector';
 import SetTemp from './components/SetTemp';
@@ -12,18 +12,25 @@ import logo from './aueg_logo.png'
 
 // https://github.com/ericmandel/js9
 
+// Use python http.server to serve downloaded files?
+
 function App() {
   const [exposureType, setExposureType] = useState('Single')
   const [imageType, setImageType] = useState('Bias')
   const [filterType, setFilterType] = useState('Ha')
   const [temp, setTemp] = useState()
   const [currTemp, setCurrTemp] = useState()
+  
+  useEffect(()=>{setTimeout(()=>window.JS9.Load(process.env.PUBLIC_URL + '/coma.fits'), 500)})
+
 
   return (
-    <div className='App'> 
-    <a href='https://sites.google.com/a/uw.edu/mro/' target='_blank'><img src={logo} className='Logo' alt='Logo'/></a>
+    <div className='App' > 
+    <a href='https://sites.google.com/a/uw.edu/mro/' target='_blank' rel='noreferrer'>
+      <img src={logo} className='Logo' alt='Logo'/>
+    </a>
     <h1 className='Title'>Manastash Ridge Observatory Controls</h1>
-    <fieldset>
+    
       <PingServer/>
       <ImageTypeSelector imageType={imageType} setImageType={setImageType}/>
       <ExposureTypeSelector exposureType={exposureType} setExposureType={setExposureType}/>
@@ -36,9 +43,13 @@ function App() {
         filterType={filterType}
         temp = {temp}
       />
+      <div className="JS9Menubar"></div>
+      <div className="JS9"></div>
+      <div className="JS9Statusbar"></div>
       
-    </fieldset>
+    
     </div>
+    
   );
 }
 

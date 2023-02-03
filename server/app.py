@@ -232,13 +232,17 @@ def create_app(test_config=None):
                 hdu.header['FILTER'] = (str(req['fil_type']), "Filter (Ha, B, V, g, r)")
                 #hdu.writeto(f"server/fits_files/{req['file_name']}.fits", overwrite=True)
                 hdu.writeto(f"fits_files/{req['file_name']}.fits", overwrite=True)
-                return str('Capture Successful')
+                return {"file_name":str(f"fits_files/{req['file_name']}.fits"), 
+                        "message": "Capture Successful"} 
                 # next thing to do - utilize js9
             else:
                 andor.setShutter(1, 0, 50, 50)
                 home_filter()
-                return str('Capture Unsuccessful')
+                return {"message": str('Capture Unsuccessful')}
             
+    def send_file(file_name):
+        uploads = os.path.join(current_app.root_path, './fits_files/')
+        return send_from_directory(uploads, file_name, as_attachment=True)
 
     @app.route('/fw_test')
     def route_fw_test():
@@ -259,5 +263,5 @@ app = create_app()
 
 
 if __name__ == '__main__':
-    app.run(host= 'localhost', port=3000)
+    app.run(host="127.0.0.1", port=3000)
     

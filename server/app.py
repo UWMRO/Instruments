@@ -180,12 +180,12 @@ def create_app(test_config=None):
             if status == 20072:
                 return str('Acquisition already in progress.')
 
-            #handle filter type - untested
-            filter_msg = set_filter(req['fil_type'])
-            if filter_msg.startswith('Error'):
-                raise Exception(filter_msg)
-            else:
-                app.logger.info(filter_msg)
+            # handle filter type - untested, uncomment if using filter wheel
+            #filter_msg = set_filter(req['fil_type'])
+            #if filter_msg.startswith('Error'):
+            #    raise Exception(filter_msg)
+            #else:
+            #    app.logger.info(filter_msg)
 
             # handle img type
             if req['img_type'] == 'bias':
@@ -211,6 +211,8 @@ def create_app(test_config=None):
                 andor.setAcquisitionMode(3)
                 andor.setNumberKinetics(int(req['exp_num']))
                 andor.setExposureTime(float(req['exp_time']))
+
+            file_name = f"{req['file_name']}.fits"
                 
             andor.startAcquisition()
             status = andor.getStatus()
@@ -228,20 +230,22 @@ def create_app(test_config=None):
             if img['status'] == 20002:
                 # use astropy here to write a fits file
                 andor.setShutter(1, 0, 50, 50)
-                home_filter()
+                #home_filter() # uncomment if using filter wheel
                 hdu = fits.PrimaryHDU(img['data'])
                 hdu.header['EXP_TIME'] = (float(req['exp_time']), "Exposure Time (Seconds)")
                 hdu.header['EXP_TYPE'] = (str(req['exp_type']), "Exposure Type (Single, Real Time, or Series)")
                 hdu.header['IMG_TYPE'] = (str(req['img_type']), "Image Type (Bias, Flat, Dark, or Object)")
                 hdu.header['FILTER'] = (str(req['fil_type']), "Filter (Ha, B, V, g, r)")
-                #hdu.writeto(f"server/fits_files/{req['file_name']}.fits", overwrite=True)
-                hdu.writeto(f"fits_files/{req['file_name']}.fits", overwrite=True)
-                return {"file_name":str(f"fits_files/{req['file_name']}.fits"), 
+                hdu.writeto(f"fits_files/"+ file_name, overwrite=True)
+                
+                send_file(file_name)
+                return {"file_name":file_name,
+                        "file_path":f"fits_files/"+ file_name,
                         "message": "Capture Successful"} 
                 # next thing to do - utilize js9
             else:
                 andor.setShutter(1, 0, 50, 50)
-                home_filter()
+                #home_filter() # uncomment if using filter wheel
                 return {"message": str('Capture Unsuccessful')}
             
     def send_file(file_name):

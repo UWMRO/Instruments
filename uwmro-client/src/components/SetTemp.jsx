@@ -24,7 +24,7 @@ function SetTemp({temp, setTemp}) {
     return (
       <form onSubmit={handleSubmit(onSubmit)} className='Temperature'>
         <label>Input Temperature (Celsius)
-        <input type='text' {...register('temp', { required: true })} placeholder='temperature (celsius)'/>
+          <input type='text' {...register('temp', { required: true })} placeholder='temperature (celsius)'/>
         </label>
         {temp}
         <input type='submit'/>

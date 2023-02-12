@@ -9,6 +9,7 @@ import FilterTypeSelector from './components/FilterControls';
 import ExposureControls from './components/ExposureControls';
 import PingServer from './components/PingServer';
 import logo from './aueg_logo.png'
+import DownloadCapture from './components/DownloadCapture';
 
 // https://github.com/ericmandel/js9
 
@@ -20,6 +21,7 @@ function App() {
   const [filterType, setFilterType] = useState('Ha')
   const [temp, setTemp] = useState()
   const [currTemp, setCurrTemp] = useState()
+  const [downloadPath, setDownloadPath] = useState()
   
   useEffect(()=>{setTimeout(()=>window.JS9.Load(process.env.PUBLIC_URL + '/coma.fits'), 500)})
 
@@ -42,7 +44,10 @@ function App() {
         imageType={imageType} 
         filterType={filterType}
         temp = {temp}
+        setDownloadPath = {setDownloadPath}
       />
+      
+
       <div className="JS9Menubar"></div>
       <div className="JS9"></div>
       <div className="JS9Statusbar"></div>

@@ -1,7 +1,8 @@
 import { capture } from "../apiClient"
 import { useForm } from "react-hook-form"
 
-function ExposureControls({ exposureType, imageType, filterType }) {
+
+function ExposureControls({ exposureType, imageType, filterType, setDownloadPath }) {
 
     const {register, handleSubmit, errors} = useForm()
     // const [state, setState] = 
@@ -30,7 +31,7 @@ function ExposureControls({ exposureType, imageType, filterType }) {
         data.fil_type = filterType
 
         const message = await capture(data)
-        console.log(message)
+        console.log(message.message)
     }
 
     return (

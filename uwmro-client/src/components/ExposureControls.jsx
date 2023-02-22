@@ -1,7 +1,8 @@
 import { capture } from "../apiClient"
 import { useForm } from "react-hook-form"
 
-function ExposureControls({ exposureType, imageType, filterType }) {
+
+function ExposureControls({ exposureType, imageType, filterType, setDownloadPath }) {
 
     const {register, handleSubmit, errors} = useForm()
     // const [state, setState] = 
@@ -23,10 +24,6 @@ function ExposureControls({ exposureType, imageType, filterType }) {
         console.log(img)
     }
 
-    // to-do for get-exposure:
-    // 1.) check each prop for errors
-    // 2.) using each prop, take the image with parameters
-    // 3.) 
 
     const onSubmit = async data => {
         // if exposure time is less than 0, set it to 0
@@ -41,7 +38,7 @@ function ExposureControls({ exposureType, imageType, filterType }) {
         data.fil_type = filterType
 
         const message = await capture(data)
-        console.log(message)
+        console.log(message.message)
     }
 
     return (

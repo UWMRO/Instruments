@@ -1,9 +1,6 @@
-import { useForm } from "react-hook-form"
 import { getTemperature } from "../apiClient";
 
 function GetTemp({currTemp, setCurrTemp}) {
-
-    const {register, handleSubmit, errors} = useForm()
 
     async function callGetTemperature() {
       setCurrTemp(await getTemperature())

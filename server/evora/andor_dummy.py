@@ -6,7 +6,7 @@ def initialize(): #input into function a path, and this will return an int statu
     """This function will initialize the Andor SDK System. As part of the initialization procedure on 
 some cameras (i.e. Classic, iStar and earlier iXion) the DLL will need access to a
 DETECTOR.INI which contains information relating to the detector head, number pixels, 
-readout speeds etc"""
+readout speeds etc""" #boolean
     pass
 def setReadMode(): #this will return an int status
     """This function will set the readout mode to be used on the subsequent acquisitions."""
@@ -66,14 +66,17 @@ If a second event occurs before the first one has been acknowledged, the first o
 ignored. Care should be taken in this case, as you may have to use CancelWait to exit 
 the function."""
     pass
+
+
 def abortAcquisition(): #this will return an int status
     """This function aborts the current acquisition if one is active."""
     pass
-def getAcquiredData(): #this will return int status, array data
+def getAcquiredData(dim=(1024,1024)): 
     """This function will return the data from the last acquisition. The data are returned as long 
 integers (32-bit signed integers). The “array” must be large enough to hold the complete 
 data set."""
-    pass
+    return np.random.randint(0,256,size= dim)
+
 def coolerOn(): #this will return an int status
     """Switches ON the cooling. On some systems the rate of temperature change is controlled 
 until the temperature is within 3º of the set value. Control is returned immediately to the 

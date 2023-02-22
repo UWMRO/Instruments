@@ -26,7 +26,7 @@ def startup():
 
 def activateCooling(target_temperature = -10):
     andor.setFanMode(2)
-    andor.coolerOn()
+    andor.coolerON()
     andor.setTargetTEC(target_temperature)
 
     return 20002

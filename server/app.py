@@ -1,13 +1,21 @@
 from flask import Flask, render_template, request, redirect, jsonify, make_response, send_from_directory, current_app
 from evora import dummy as andor #andor
+#from dummy_fw import main as start_fw
+import asyncio
 # import evora.andor as andor
 from andor_routines import startup, activateCooling, deactivateCooling, acquisition
 from astropy.io import fits
 import logging
+import socket
 import os
 import numpy as np
 from datetime import datetime
+"""
+ dev note: I also ran pip install aioflask and pip install asgiref to try to give flask async abilities.
+ this is for handling requests from the filter wheel that may take some time.
+"""
 
+logging.getLogger('PIL').setLevel(logging.WARNING)
 # app = Flask(__name__)
 
 #try:
@@ -15,7 +23,12 @@ from datetime import datetime
 #except(ImportError):
 #    print("COULD NOT GET DRIVERS/SDK, STARTING IN DUMMY MODE")
     # TODO: add dummy server if necessary
-
+    
+#filter server
+#try:
+#    connection = socket.create_connection(('localhost', 3002))
+#except Exception:
+#    connection = socket.create_connection(('localhost', 5503))
 
 
 def formatFileName(file):
@@ -44,6 +57,7 @@ def formatFileName(file):
         num += 1
     return file
 
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
@@ -59,6 +73,7 @@ def create_app(test_config=None):
     start = startup()
 
     app.logger.info(f"Startup Status: {start['status']}")
+    
 
     # a simple page that says hello
     @app.route('/getStatus')
@@ -105,8 +120,56 @@ def create_app(test_config=None):
 
     @app.route('/getStatusTEC')
     def route_getStatusTEC():
-        return str(andor.getStatusTEC())
+        return str(andor.getStatusTEC()['status'])
 
+    @app.route('/get_filter_position')
+    def route_get_filter():
+        pass
+
+    @app.route('/setFilter')
+    def route_set_filter():
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        req = request.get_json(force=True)
+        s.connect(('127.0.0.1', 5503))
+        #if req['value']
+        s.send(b'home\n')
+        received = s.recv(100).decode()
+        s.close()
+        return received
+
+    def set_filter(filter):
+        # these filter positions are placeholders - need to find which filter corresponds
+        # to each position on the wheel
+        """
+        Moves the filter to the given position.
+        """
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect(('127.0.0.1', 5503))
+
+        filter_dict = {'Ha': 1,
+                       'B' : 2,
+                       'V' : 3,
+                       'g': 4,
+                       'r': 5}
+
+        pos_str = f"move {filter_dict[filter]}\n"
+        s.send(pos_str.encode('utf-8'))
+        received = s.recv(100).decode()
+        s.close()
+        return received
+        
+    def home_filter():
+        """
+        Homes the filter back to its default position.
+        """
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        req = request.get_json(force=True)
+        s.connect(('127.0.0.1', 5503))
+        s.send(b'home\n')
+        received = s.recv(100).decode()
+        s.close()
+        return received
+    
     @app.route('/testReturnFITS', methods=['GET'])
     def route_testReturnFITS():
         acq = acquisition((1024, 1024), exposure_time=0.1)
@@ -144,6 +207,13 @@ def create_app(test_config=None):
             if status == 20072:
                 return str('Acquisition already in progress.')
 
+            # handle filter type - untested, uncomment if using filter wheel
+            #filter_msg = set_filter(req['fil_type'])
+            #if filter_msg.startswith('Error'):
+            #    raise Exception(filter_msg)
+            #else:
+            #    app.logger.info(filter_msg)
+
             # handle img type
             if req['img_type'] == 'bias':
                 andor.setShutter(1, 2, 50, 50)
@@ -168,6 +238,8 @@ def create_app(test_config=None):
                 andor.setAcquisitionMode(3)
                 andor.setNumberKinetics(int(req['exp_num']))
                 andor.setExposureTime(float(req['exp_time']))
+
+            file_name = f"{req['file_name']}.fits"
                 
             andor.startAcquisition()
             status = andor.getStatus()
@@ -185,16 +257,44 @@ def create_app(test_config=None):
             if img['status'] == 20002:
                 # use astropy here to write a fits file
                 andor.setShutter(1, 0, 50, 50)
+                #home_filter() # uncomment if using filter wheel
                 hdu = fits.PrimaryHDU(img['data'])
+                hdu.header['EXP_TIME'] = (float(req['exp_time']), "Exposure Time (Seconds)")
+                hdu.header['EXP_TYPE'] = (str(req['exp_type']), "Exposure Type (Single, Real Time, or Series)")
+                hdu.header['IMG_TYPE'] = (str(req['img_type']), "Image Type (Bias, Flat, Dark, or Object)")
+                hdu.header['FILTER'] = (str(req['fil_type']), "Filter (Ha, B, V, g, r)")
+
                 fname = req['file_name']
                 fname = formatFileName(fname)
                 hdu.writeto(f"fits_files/{fname}", overwrite=True)
-                return {"message": str('Capture Successful')}
-                # next thing to do - utilize js9
+                send_file(fname)
+                return {"file_name":fname,
+                        "file_path":f"fits_files/{fname}",
+                        "message": "Capture Successful"} 
+                
             else:
                 andor.setShutter(1, 0, 50, 50)
+                #home_filter() # uncomment if using filter wheel
                 return {"message": str('Capture Unsuccessful')}
+                # next thing to do - utilize js9
             
+            
+    def send_file(file_name):
+        uploads = os.path.join(current_app.root_path, './fits_files/')
+        return send_from_directory(uploads, file_name, as_attachment=True)
+
+    @app.route('/fw_test')
+    async def route_fw_test():
+        """
+        Tests the example server server.py
+        """
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect(('127.0.0.1', 5503))
+        s.send(b'getFilter\n')
+        received = await s.recv(1000).decode()
+        s.close()
+        return received
+        #pass
 
     return app
 
@@ -202,4 +302,5 @@ app = create_app()
 
 
 if __name__ == '__main__':
-    app.run(host= 'localhost', port=3000)
+    app.run(host="127.0.0.1", port=3000)
+    

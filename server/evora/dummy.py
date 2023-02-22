@@ -92,7 +92,7 @@ def getAcquiredData(dim):
     #list = os.listdir('.')
 
     with open(img) as f:
-        data = asarray(Image.open(BytesIO(base64.b64decode(f.read()))))
+       data = asarray(Image.open(BytesIO(base64.b64decode(f.read()))))
 
     # This might not work, passing by reference is weird in Python
     

@@ -39,7 +39,7 @@ function App() {
       <FilterTypeSelector filterType={filterType} setFilterType={setFilterType}/>
       <SetTemp temp={temp} setTemp={setTemp}/>
       <GetTemp currTemp={currTemp} setCurrTemp={setCurrTemp}/>
-      <ExposureControls 
+      <ExposureControls
         exposureType={exposureType} 
         imageType={imageType} 
         filterType={filterType}

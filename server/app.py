@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, jsonify, make_response, send_from_directory, current_app
+from flask import Flask, render_template, request, redirect, jsonify, make_response, send_from_directory, current_app, url_for
 from evora import dummy as andor #andor
 #from dummy_fw import main as start_fw
 import asyncio
@@ -16,24 +16,11 @@ from datetime import datetime
 """
 
 logging.getLogger('PIL').setLevel(logging.WARNING)
-# app = Flask(__name__)
-
-#try:
-#    from evora import andor
-#except(ImportError):
-#    print("COULD NOT GET DRIVERS/SDK, STARTING IN DUMMY MODE")
-    # TODO: add dummy server if necessary
-    
-#filter server
-#try:
-#    connection = socket.create_connection(('localhost', 3002))
-#except Exception:
-#    connection = socket.create_connection(('localhost', 5503))
 
 
 def formatFileName(file):
     """
-    Formats the given file name to be valid.\n
+    Formats the given file name to be valid.
     If the file contains invalid characters or is empty, image.fits will be used.
     if the file already exists, it will be saved as: name(0), name(1), name(2), ..., name(n)
     """
@@ -61,6 +48,8 @@ def formatFileName(file):
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
+
+    #app.config['UPLOAD_FOLDER'] = 'static/fits_files'
 
     logging.basicConfig(level=logging.DEBUG)
 
@@ -194,7 +183,8 @@ def create_app(test_config=None):
         Attempts to take a picture with the camera. Uses the 'POST' method
         to take in form requests from the front end.
 
-        TBD: What to return - the fits file or the np array.
+        Returns the url for the fits file generated, which is then used for
+        JS9's display.
         Throws an error if status code is not 20002 (success).
         """
         if request.method == "POST":
@@ -205,7 +195,7 @@ def create_app(test_config=None):
             # check if acquisition is already in progress
             status = andor.getStatus()
             if status == 20072:
-                return str('Acquisition already in progress.')
+                return {'message': str('Acquisition already in progress.')}
 
             # handle filter type - untested, uncomment if using filter wheel
             #filter_msg = set_filter(req['fil_type'])
@@ -247,16 +237,11 @@ def create_app(test_config=None):
                 status = andor.getStatus()
                 app.logger.info('Acquisition in progress')
 
-            #if status == 20073:
-            #    andor.startAcquisition()
-            #else:
-            #    return 'Acquisition already in progress'
-
             img = andor.getAcquiredData(dim)
             
             if img['status'] == 20002:
                 # use astropy here to write a fits file
-                andor.setShutter(1, 0, 50, 50)
+                andor.setShutter(1, 0, 50, 50) #closes shutter
                 #home_filter() # uncomment if using filter wheel
                 hdu = fits.PrimaryHDU(img['data'])
                 hdu.header['EXP_TIME'] = (float(req['exp_time']), "Exposure Time (Seconds)")
@@ -266,22 +251,24 @@ def create_app(test_config=None):
 
                 fname = req['file_name']
                 fname = formatFileName(fname)
-                hdu.writeto(f"fits_files/{fname}", overwrite=True)
-                send_file(fname)
+                hdu.writeto(f"static/fits_files/{fname}", overwrite=True)
+                #send_file(fname)
                 return {"file_name":fname,
-                        "file_path":f"fits_files/{fname}",
+                        "url":url_for('static', filename = f'fits_files/{fname}'),
                         "message": "Capture Successful"} 
                 
             else:
                 andor.setShutter(1, 0, 50, 50)
                 #home_filter() # uncomment if using filter wheel
                 return {"message": str('Capture Unsuccessful')}
-                # next thing to do - utilize js9
+                
             
-            
-    def send_file(file_name):
-        uploads = os.path.join(current_app.root_path, './fits_files/')
-        return send_from_directory(uploads, file_name, as_attachment=True)
+    # we shouldn't download files locally - instead, lets upload them to server instead        
+    #def send_file(file_name):
+    #   uploads = os.path.join(current_app.root_path, './fits_files/')
+    #    return send_from_directory(uploads, file_name, as_attachment=True)
+
+    @app.route('/fetch_fits_file')
 
     @app.route('/fw_test')
     async def route_fw_test():

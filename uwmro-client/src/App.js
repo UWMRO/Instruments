@@ -21,7 +21,7 @@ function App() {
   const [filterType, setFilterType] = useState('Ha')
   const [temp, setTemp] = useState()
   const [currTemp, setCurrTemp] = useState()
-  const [downloadPath, setDownloadPath] = useState()
+
   
   useEffect(()=>{setTimeout(()=>window.JS9.Load(process.env.PUBLIC_URL + '/coma.fits'), 500)})
 
@@ -44,7 +44,6 @@ function App() {
         imageType={imageType} 
         filterType={filterType}
         temp = {temp}
-        setDownloadPath = {setDownloadPath}
       />
       
 

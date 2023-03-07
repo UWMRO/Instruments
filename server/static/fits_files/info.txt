@@ -1,0 +1,1 @@
+This directory will be where future exposure files will live once taken with capture().

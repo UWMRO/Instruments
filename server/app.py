@@ -17,6 +17,7 @@ from datetime import datetime
 
 logging.getLogger('PIL').setLevel(logging.WARNING)
 
+FITS_PATH = "static/fits_files"
 
 def formatFileName(file):
     """
@@ -39,7 +40,7 @@ def formatFileName(file):
     # ensure nothing gets overwritten
     num = 0
     length = len(file[0:-5])
-    while os.path.isfile(f"fits_files/{file}"):
+    while os.path.isfile(f"{FITS_PATH}/{file}"):
         file = file[0:length] + f"({num})" + file[-5:]
         num += 1
     return file
@@ -251,7 +252,7 @@ def create_app(test_config=None):
 
                 fname = req['file_name']
                 fname = formatFileName(fname)
-                hdu.writeto(f"static/fits_files/{fname}", overwrite=True)
+                hdu.writeto(f"{FITS_PATH}/{fname}", overwrite=True)
                 #send_file(fname)
                 return {"file_name":fname,
                         "url":url_for('static', filename = f'fits_files/{fname}'),

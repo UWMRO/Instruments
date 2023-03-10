@@ -3,7 +3,8 @@ import { useForm } from "react-hook-form"
 import {useEffect, useState} from "react"
 
 
-function ExposureControls({ exposureType, imageType, filterType }) {
+
+function ExposureControls({ exposureType, imageType, filterType, setDownloadPath }) {
 
     const [playing, setPlaying] = useState(false)
     const [audio] = useState(new Audio(process.env.PUBLIC_URL + '/tadaa-47995.mp3'))
@@ -28,10 +29,6 @@ function ExposureControls({ exposureType, imageType, filterType }) {
         console.log(img)
     }
 
-    // to-do for get-exposure:
-    // 1.) check each prop for errors
-    // 2.) using each prop, take the image with parameters
-    // 3.)
 
     const onSubmit = async data => {
         data.exp_type = exposureType
@@ -39,6 +36,7 @@ function ExposureControls({ exposureType, imageType, filterType }) {
         data.fil_type = filterType
 
         const message = await capture(data)
+
         console.log(message)
 
         // Play sounds after exposure completes.
@@ -65,8 +63,10 @@ function ExposureControls({ exposureType, imageType, filterType }) {
             <legend>
                 Exposure Controls
             </legend>
-            <label> File Name
-                <input type='text' {...register('file_name', { required: true })}/>
+
+            <label> File Name 
+                <input type='text' {...register('file_name', { required: false })} placeholder="image.fits"/>
+
             </label>
             {exposureType !== 'Real Time'
             && <label> Exposure Time

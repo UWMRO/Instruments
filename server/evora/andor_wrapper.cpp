@@ -57,8 +57,12 @@ PYBIND11_MODULE(andor_wrapper, m) {
     m.def("getStatus",		
                                 [](void) {
                                     int status;
-                                    GetStatus(&status);
-                                    return status;
+                                    int funcStatus;
+                                    py::dict out;
+                                    funcStatus = GetStatus(&status);
+                                    out["status"] = status;
+                                    out["funcstatus"] = funcStatus;
+                                    return out;
                                 },	                    "Get camera status");
 
     m.def("getDetector",	

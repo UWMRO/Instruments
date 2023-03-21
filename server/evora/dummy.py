@@ -219,10 +219,6 @@ def getAcquisitionTimings():
 def getNumberVSSpeeds(speeds):
     return 1
 
-if initialized:
-        return DRV_SUCCESS
-    else:
-        return DRV_NOT_INITIALIZED
 def getNumberVSAmplitudes(number):
     return 1
 

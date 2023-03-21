@@ -116,16 +116,16 @@ def create_app(test_config=None):
     def route_get_filter():
         pass
 
-    @app.route('/setFilter')
-    def route_set_filter():
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        req = request.get_json(force=True)
-        s.connect(('127.0.0.1', 5503))
-        #if req['value']
-        s.send(b'home\n')
-        received = s.recv(100).decode()
-        s.close()
-        return received
+#    @app.route('/setFilter')
+#    async def route_set_filter():
+#        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#        req = request.get_json(force=True)
+#        s.connect(('127.0.0.1', 5503))
+#        #if req['value']
+#        s.send(b'home\n')
+#        received = await s.recv(1000).decode()
+#        s.close()
+#        return received
 
     def set_filter(filter):
         # these filter positions are placeholders - need to find which filter corresponds
@@ -144,7 +144,7 @@ def create_app(test_config=None):
 
         pos_str = f"move {filter_dict[filter]}\n"
         s.send(pos_str.encode('utf-8'))
-        received = s.recv(100).decode()
+        received = s.recv(2048).decode('utf-8')
         s.close()
         return received
         
@@ -156,7 +156,7 @@ def create_app(test_config=None):
         req = request.get_json(force=True)
         s.connect(('127.0.0.1', 5503))
         s.send(b'home\n')
-        received = s.recv(100).decode()
+        received = s.recv(2048).decode()
         s.close()
         return received
     
@@ -267,22 +267,38 @@ def create_app(test_config=None):
     # we shouldn't download files locally - instead, lets upload them to server instead        
     #def send_file(file_name):
     #   uploads = os.path.join(current_app.root_path, './fits_files/')
-    #    return send_from_directory(uploads, file_name, as_attachment=True)
-
-    @app.route('/fetch_fits_file')
+    #   return send_from_directory(uploads, file_name, as_attachment=True)
 
     @app.route('/fw_test')
+    def route_fw_test_helper():
+        res = asyncio.run(route_fw_test())
+        return res
+
     async def route_fw_test():
         """
         Tests the example server server.py
         """
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(('127.0.0.1', 5503))
-        s.send(b'getFilter\n')
-        received = await s.recv(1000).decode()
-        s.close()
-        return received
-        #pass
+        #s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #s.connect(('127.0.0.1', 5503))
+        #loop = asyncio.get_running_loop()
+
+        reader, writer = await asyncio.open_connection('127.0.0.1', 5503)
+        #s.send(b'getFilter\n')
+        writer.write(b'getFilter\n')
+        await writer.drain()
+        #writer.write_eof()
+        
+        received = await reader.readline()
+        #msglen()
+        
+        writer.close()
+        await writer.wait_closed()
+        
+        return {'message': received.decode()}
+        
+        #loop = asyncio.get_running_loop()
+        #print(loop)
+        
 
     return app
 

@@ -11,7 +11,7 @@ function PingServer() {
     async function fwOnPing() {
         console.log("Pinging Filter Wheel Connection")
         const msg = await getFilterWheelStatus()
-        console.log(msg)
+        console.log(msg.message)
     }
 
     return(

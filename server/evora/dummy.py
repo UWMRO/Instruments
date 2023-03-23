@@ -65,7 +65,7 @@ class Dummy:
             if not cls.acquiring:
                 return {
                     'status' : DRV_SUCCESS, 
-                    'temperature': current_temp
+                    'temperature': cls.current_temp
                 }
             else:
                 return {
@@ -82,13 +82,13 @@ class Dummy:
     @classmethod
     def setTemperature(cls, value):
         cls.current_temp = float(value) 
-        return current_temp
+        return cls.current_temp
 
     @classmethod
     def setTargetTEC(cls, temperature):
         if cls.initialized:
             if not cls.acquiring:
-                current_temp = temperature
+                cls.current_temp = temperature
                 return DRV_SUCCESS
             else:
                 return DRV_ACQUIRING

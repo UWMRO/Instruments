@@ -62,7 +62,7 @@ class Dummy:
     @classmethod
     def getStatusTEC(cls):
         if cls.initialized:
-            if not acquiring:
+            if not cls.acquiring:
                 return {
                     'status' : DRV_SUCCESS, 
                     'temperature': current_temp

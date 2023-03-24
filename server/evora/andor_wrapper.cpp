@@ -137,4 +137,6 @@ PYBIND11_MODULE(andor_wrapper, m) {
                                     return out;
                                 },                      "Get valid range of temperatures (C) which TEC can cool to");
     m.def("setFanMode",		    &SetFanMode,		    "Set fan mode");
+    m.def("setNumberKinetics",  &SetNumberKinetics,     "Set the number of scans to be taken during a single acquisition sequence");
+    m.def("setKineticCycleTime",&SetKineticCycleTime,   "Set the kinetic cycle time");
 }

@@ -1,5 +1,6 @@
 from PIL import Image
 from numpy import asarray
+from numpy import array
 import base64
 from io import BytesIO
 from random import randint
@@ -23,6 +24,8 @@ class Dummy:
     acquiring = False
     acquisition_mode = 1
     exp_time = 0.1
+    dimensions = (1024, 1024)
+    __thread_stop  = False
 
     """
     SWIG notes
@@ -35,8 +38,11 @@ class Dummy:
     @classmethod
     def __emulate_acquisition(cls):
         cls.acquiring = True
-        time.sleep(cls.exp_time)
+        elapsed = 0.0
+        while (elapsed < cls.exp_time) and not cls.__thread_stop:
+            time.sleep(cls.exp_time)
         cls.acquiring = False
+        cls.__thread_stop = False
 
     # Andor SDK replacement functions with return values
     @classmethod
@@ -88,7 +94,7 @@ class Dummy:
     def setTargetTEC(cls, temperature):
         if cls.initialized:
             if not cls.acquiring:
-                cls.current_temp = temperature
+                cls.current_temp = float(temperature)
                 return DRV_SUCCESS
             else:
                 return DRV_ACQUIRING
@@ -157,10 +163,13 @@ class Dummy:
         else:
             return DRV_NOT_INITIALIZED
 
-
-
-    # def abortAcquisition():
-    #     DRV_ACQUIRING = 0
+    def abortAcquisition():
+        if cls.initialized:
+            cls.acquiring = False
+            cls.__thread_stop = True
+            return DRV_SUCCESS
+        else:
+            return DRV_NOT_INITIALIZED
 
     @classmethod
     def getAcquiredData(cls, dim):
@@ -192,12 +201,12 @@ class Dummy:
                 }
             else:
                 return {
-                    'data' : np.array([]),
+                    'data' : array([], dtype='uint8'),
                     'status' : DRV_ACQUIRING
                 }
         else:
             return {
-                    'data' : np.array([]),
+                    'data' : array([], dtype='uint8'),
                     'status' : DRV_NOT_INITIALIZED
                 }
 
@@ -210,7 +219,7 @@ class Dummy:
         if cls.initialized:
             if not cls.acquiring:
                 return {
-                    'exposure' : exp_time,
+                    'exposure' : cls.exp_time,
                     'accumulate' : -1.0,
                     'kinetic' : -1.0,
                     'status' : DRV_SUCCESS
@@ -248,7 +257,7 @@ class Dummy:
         if cls.initialized:
             if not cls.acquiring:
                 return {
-                    'dimensions' : (1024, 1024),
+                    'dimensions' : cls.dimensions,
                     'status' : DRV_SUCCESS
                 }
             else:
@@ -280,7 +289,7 @@ class Dummy:
     def setAcquisitionMode(cls, mode):
         if cls.initialized:
             if not cls.acquiring:
-                acquisition_mode = mode
+                cls.acquisition_mode = mode
                 return DRV_SUCCESS
             else:
                 return DRV_ACQUIRING
@@ -288,7 +297,17 @@ class Dummy:
             return DRV_NOT_INITIALIZED
 
     #setTemperature = noop
-    # setShutter = noop
+    
+    @classmethod
+    def setShutter(cls, typ, mode, closingtime, openingtime):
+        if cls.initialized:
+            if not cls.acquiring:
+                return DRV_SUCCESS
+            else:
+                return DRV_ACQUIRING
+        else:
+            return DRV_NOT_INITIALIZED
+
     @classmethod
     def setFanMode(cls, mode):
         if cls.initialized:
@@ -371,8 +390,24 @@ class Dummy:
         else:
             return DRV_NOT_INITIALIZED
 
-    # setKineticCycleTime = noop
+    @classmethod
+    def setKineticCycleTime(cycle_time):
+        if cls.initialized:
+            if not cls.acquiring:
+                return DRV_SUCCESS
+            else:
+                return DRV_ACQUIRING
+        else:
+            return DRV_NOT_INITIALIZED
     # setNumberAccumulations = noop
     # setAccumulationCycleTime = noop
-    # setNumberKinetics = noop
+    @classmethod
+    def setNumberKinetics(cls, number):
+        if cls.initialized:
+            if not cls.acquiring:
+                return DRV_SUCCESS
+            else:
+                return DRV_ACQUIRING
+        else:
+            return DRV_NOT_INITIALIZED
     # setTriggerMode = noop

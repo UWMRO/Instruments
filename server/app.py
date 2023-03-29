@@ -128,37 +128,49 @@ def create_app(test_config=None):
 #        return received
 
     def set_filter(filter):
+        res = asyncio.run(set_filter_helper(filter))
+        return res
+
+    async def set_filter_helper(filter):
         # these filter positions are placeholders - need to find which filter corresponds
         # to each position on the wheel
         """
         Moves the filter to the given position.
         """
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(('127.0.0.1', 5503))
 
         filter_dict = {'Ha': 1,
                        'B' : 2,
                        'V' : 3,
                        'g': 4,
                        'r': 5}
+        
+        if filter not in filter_dict.keys():
+            raise ValueError('Invalid Filter')
 
         pos_str = f"move {filter_dict[filter]}\n"
-        s.send(pos_str.encode('utf-8'))
-        received = s.recv(2048).decode('utf-8')
-        s.close()
-        return received
-        
+        reader, writer = await asyncio.open_connection('127.0.0.1', 5503)
+        writer.write(pos_str.encode('utf-8'))
+        await writer.drain()
+        received = await reader.readline()
+        writer.close()
+        await writer.wait_closed()     
+        return {'message': received.decode()}
+    
     def home_filter():
+        res = asyncio.run(home_filter_helper())
+        return res
+        
+    async def home_filter_helper():
         """
         Homes the filter back to its default position.
         """
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        req = request.get_json(force=True)
-        s.connect(('127.0.0.1', 5503))
-        s.send(b'home\n')
-        received = s.recv(2048).decode()
-        s.close()
-        return received
+        reader, writer = await asyncio.open_connection('127.0.0.1', 5503)
+        writer.write(b'home\n')
+        await writer.drain()
+        received = await reader.readline()
+        writer.close()
+        await writer.wait_closed()
+        return {'message': received.decode()}
     
     @app.route('/testReturnFITS', methods=['GET'])
     def route_testReturnFITS():
@@ -199,11 +211,11 @@ def create_app(test_config=None):
                 return {'message': str('Acquisition already in progress.')}
 
             # handle filter type - untested, uncomment if using filter wheel
-            #filter_msg = set_filter(req['fil_type'])
-            #if filter_msg.startswith('Error'):
-            #    raise Exception(filter_msg)
-            #else:
-            #    app.logger.info(filter_msg)
+            filter_msg = set_filter(req['fil_type'])
+            if filter_msg['message'].startswith('Error'):
+                raise Exception(filter_msg)
+            else:
+                app.logger.info(filter_msg)
 
             # handle img type
             if req['img_type'] == 'bias':
@@ -243,7 +255,7 @@ def create_app(test_config=None):
             if img['status'] == 20002:
                 # use astropy here to write a fits file
                 andor.setShutter(1, 0, 50, 50) #closes shutter
-                #home_filter() # uncomment if using filter wheel
+                home_filter() # uncomment if using filter wheel
                 hdu = fits.PrimaryHDU(img['data'])
                 hdu.header['EXP_TIME'] = (float(req['exp_time']), "Exposure Time (Seconds)")
                 hdu.header['EXP_TYPE'] = (str(req['exp_type']), "Exposure Type (Single, Real Time, or Series)")
@@ -253,14 +265,14 @@ def create_app(test_config=None):
                 fname = req['file_name']
                 fname = formatFileName(fname)
                 hdu.writeto(f"{FITS_PATH}/{fname}", overwrite=True)
-                #send_file(fname)
+
                 return {"file_name":fname,
                         "url":url_for('static', filename = f'fits_files/{fname}'),
                         "message": "Capture Successful"} 
                 
             else:
                 andor.setShutter(1, 0, 50, 50)
-                #home_filter() # uncomment if using filter wheel
+                home_filter() # uncomment if using filter wheel
                 return {"message": str('Capture Unsuccessful')}
                 
             
@@ -278,26 +290,17 @@ def create_app(test_config=None):
         """
         Tests the example server server.py
         """
-        #s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        #s.connect(('127.0.0.1', 5503))
-        #loop = asyncio.get_running_loop()
 
         reader, writer = await asyncio.open_connection('127.0.0.1', 5503)
-        #s.send(b'getFilter\n')
         writer.write(b'getFilter\n')
         await writer.drain()
-        #writer.write_eof()
-        
         received = await reader.readline()
-        #msglen()
-        
         writer.close()
         await writer.wait_closed()
         
         return {'message': received.decode()}
         
-        #loop = asyncio.get_running_loop()
-        #print(loop)
+
         
 
     return app

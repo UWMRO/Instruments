@@ -31,8 +31,15 @@ function ExposureControls({ exposureType, imageType, filterType }) {
 
 
     const onSubmit = async data => {
+        // if exposure time is less than 0, set it to 0
+        data.exp_time = Math.max(0, data.exp_time)
+        // make sure exposure number is at least 1 exposure
+        data.exp_num = Math.max(1, data.exp_num)
+
         data.exp_type = exposureType
-        data.img_type = imageType
+        // if exposure time is 0, use bias type
+        data.img_type = data.exp_time == 0 ? "Bias" : imageType
+
         data.fil_type = filterType
 
         const message = await capture(data)
@@ -73,12 +80,12 @@ function ExposureControls({ exposureType, imageType, filterType }) {
             </label>
             {exposureType !== 'Real Time'
             && <label> Exposure Time
-                <input type='text' {...register('exp_time', { required: true })}/>
+                <input type='number' {...register('exp_time', { required: true })}/>
                 </label>
             }
             {exposureType === 'Series'
             && <label> Number of Exposures
-                <input type='text' {...register('exp_num', { required: false })}/>
+                <input type='number' {...register('exp_num', { required: false })}/>
                 </label>
             }
             <button type='submit'>Get Exposure</button>

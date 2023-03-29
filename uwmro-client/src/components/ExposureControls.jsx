@@ -1,11 +1,16 @@
 import { capture } from "../apiClient"
 import { useForm } from "react-hook-form"
+import {useEffect, useState} from "react"
+
 
 
 function ExposureControls({ exposureType, imageType, filterType }) {
 
+    const [playing, setPlaying] = useState(false)
+    const [audio] = useState(new Audio(process.env.PUBLIC_URL + '/tadaa-47995.mp3'))
+
     const {register, handleSubmit, errors} = useForm()
-    // const [state, setState] = 
+    // const [state, setState] =
 
     function eventChange(e) {
         console.log(e.target.value)
@@ -31,19 +36,40 @@ function ExposureControls({ exposureType, imageType, filterType }) {
         data.fil_type = filterType
 
         const message = await capture(data)
+
         console.log(message)
         // need to create url for file
         window.JS9.Load(message.url)
+
+        // Play sounds after exposure completes.
+        console.log('here')
+        setPlaying(true)
+
     }
+
+    useEffect(() => {
+        playing ? audio.play() : audio.pause();
+      },
+      [playing, audio]
+    );
+
+    useEffect(() => {
+      audio.addEventListener('ended', () => setPlaying(false));
+      return () => {
+        audio.removeEventListener('ended', () => setPlaying(false));
+      };
+    }, [audio]);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className='exposure-controls'>
-            
+
             <legend>
                 Exposure Controls
             </legend>
+
             <label> File Name 
                 <input type='text' {...register('file_name', { required: false })} placeholder="image.fits"/>
+
             </label>
             {exposureType !== 'Real Time'
             && <label> Exposure Time
@@ -57,14 +83,10 @@ function ExposureControls({ exposureType, imageType, filterType }) {
             }
             <button type='submit'>Get Exposure</button>
 
-            
         </form>
     );
 
 
   }
-  
-  
-  
-  
+
   export default ExposureControls;

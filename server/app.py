@@ -1,9 +1,7 @@
-from flask import Flask, render_template, request, redirect, jsonify, make_response, send_from_directory, current_app, url_for
-from evora import dummy as andor #andor
-#from dummy_fw import main as start_fw
-import asyncio
-# import evora.andor as andor
+from evora.dummy import Dummy as andor #andor
 from andor_routines import startup, activateCooling, deactivateCooling, acquisition
+from flask import Flask, render_template, request, redirect, jsonify, make_response, send_from_directory, current_app, url_for
+import asyncio
 from astropy.io import fits
 import logging
 import socket
@@ -60,53 +58,66 @@ def create_app(test_config=None):
     else:
         # load the test config if passed in
         app.config.from_mapping(test_config)
-    start = startup()
+    
+    andor.initialize()
 
     app.logger.info(f"Startup Status: {start['status']}")
     
 
-    # a simple page that says hello
     @app.route('/getStatus')
     def getStatus():
-        return str(andor.getStatus())
+        return jsonify(andor.getStatus())
 
     @app.route('/')
     def index():
         tempData = andor.getStatusTEC()['temperature']
         return render_template('index.html', tempData=tempData)
 
-
     # REMEMBER: localhost:5000/temperature
     @app.route('/getTemperature')
     def route_getTemperature():
-        return str(andor.getStatusTEC()['temperature'])
-
+        # return str(andor.getStatusTEC()['temperature'])
+        return jsonify(andor.getStatusTEC())
+    
 
     @app.route('/setTemperature', methods=['POST'])
     def route_setTemperature():
-        """
-        Sets the temperature of the camera in Celsius. Uses the 'POST' method
-        to take in form requests from the front end.
-
-        Returns the set temperature for display on the front end.
-        """
-        if request.method == "POST":
-            app.logger.info('setting temperature')
+        if request.method == 'POST':
             req = request.get_json(force=True)
+            
+            try:
+                req_temperature = float(req['temperature'])
+                app.logger.info(f'Setting temperature to: {req_temperature:.2f} [C]')
+                andor.setTemperature(req_temperature)
+            except ValueError:
+                app.logger.info('Post request received a parameter of invalid type (must be float)')
+        
+        return str(req['temperature'])
 
-            #change_temp = andor.setTemperature(req['temp'])
-            activateCooling(req['temp'])
+    # def route_setTemperature():
+    #     """
+    #     Sets the temperature of the camera in Celsius. Uses the 'POST' method
+    #     to take in form requests from the front end.
 
-            curr_temp = andor.getStatusTEC()['temperature']
-            while curr_temp != req['temp']:
-                curr_temp = andor.getStatusTEC()['temperature']
-            deactivateCooling()
+    #     Returns the set temperature for display on the front end.
+    #     """
+    #     if request.method == "POST":
+    #         app.logger.info('setting temperature')
+    #         req = request.get_json(force=True)
 
-            app.logger.info(andor.getStatusTEC()['temperature'])
+    #         #change_temp = andor.setTemperature(req['temp'])
+    #         activateCooling(req['temp'])
 
-            res = req['temp']
+    #         curr_temp = andor.getStatusTEC()['temperature']
+    #         while curr_temp != req['temp']:
+    #             curr_temp = andor.getStatusTEC()['temperature']
+    #         deactivateCooling()
 
-            return res
+    #         app.logger.info(andor.getStatusTEC()['temperature'])
+
+    #         res = req['temp']
+
+    #         return res
 
     @app.route('/getStatusTEC')
     def route_getStatusTEC():
@@ -246,6 +257,7 @@ def create_app(test_config=None):
                 
             andor.startAcquisition()
             status = andor.getStatus()
+            # todo: review parallelism, threading behavior is what we want?
             while (status == 20072):
                 status = andor.getStatus()
                 app.logger.info('Acquisition in progress')

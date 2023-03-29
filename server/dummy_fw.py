@@ -8,6 +8,7 @@
 
 
 import asyncio
+import logging
 
 
 async def server_handler(reader, writer):
@@ -15,11 +16,13 @@ async def server_handler(reader, writer):
     filter_pos = 0
 
     while True:
-        data_bytes = await reader.readline()
+        data_bytes = await reader.read(1024)
         data_str = data_bytes.decode().strip()
 
-        if data_str == "":
-            continue
+        if data_str == '':
+             writer.close()
+             await writer.wait_closed()
+             return
         try:
             if data_str.startswith("home"):
                 await asyncio.sleep(10)
@@ -29,7 +32,7 @@ async def server_handler(reader, writer):
                 if len(data_str.split(' ')) >= 2:
                     try:
                         if int(data_str.split(' ')[1]) not in range(0, 6):
-                            writer.write("""Error: Invalid position number.
+                            writer.write(b"""Error: Invalid position number.
                                             Valid position numbers range from 0 to 5.\n""")
                             break
                         await asyncio.sleep(5)
@@ -42,25 +45,27 @@ async def server_handler(reader, writer):
                 else:
                     writer.write(b'Error: Unknown error occurred while moving filter wheel.\n')
             elif data_str.startswith('getFilter'):
-                message = f"Success! Current filter position: {filter_pos}\n"
+                message = f"Current filter position: {filter_pos}\n"
                 writer.write(message.encode('utf-8'))
-                
             else:
                 writer.write(b"Error: Invalid command\n")
         except Exception as err:
-            writer.write(str(err).encode() + b'\n')
+            writer.write(str(err).encode('utf-8') + b'\n')
+        
         await writer.drain()
 
 
 async def main():
+    logging.basicConfig(level=logging.DEBUG)
     server = await asyncio.start_server(server_handler, host='127.0.0.1', port=5503)
 
     addrs = ", ".join(str(sock.getsockname()) for sock in server.sockets)
     print(f"Serving on {addrs}")
 
     async with server:
+        print('server starts here')
         await server.serve_forever()
-
+        print('server is done starting here')
 
 if __name__ == "__main__":
     asyncio.run(main())

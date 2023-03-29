@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, jsonify, make_response, send_from_directory, current_app
+from flask import Flask, render_template, request, redirect, jsonify, make_response, send_from_directory, current_app, url_for
 from evora import dummy as andor #andor
 #from dummy_fw import main as start_fw
 import asyncio
@@ -16,24 +16,12 @@ from datetime import datetime
 """
 
 logging.getLogger('PIL').setLevel(logging.WARNING)
-# app = Flask(__name__)
 
-#try:
-#    from evora import andor
-#except(ImportError):
-#    print("COULD NOT GET DRIVERS/SDK, STARTING IN DUMMY MODE")
-    # TODO: add dummy server if necessary
-    
-#filter server
-#try:
-#    connection = socket.create_connection(('localhost', 3002))
-#except Exception:
-#    connection = socket.create_connection(('localhost', 5503))
-
+FITS_PATH = "static/fits_files"
 
 def formatFileName(file):
     """
-    Formats the given file name to be valid.\n
+    Formats the given file name to be valid.
     If the file contains invalid characters or is empty, image.fits will be used.
     if the file already exists, it will be saved as: name(0), name(1), name(2), ..., name(n)
     """
@@ -52,7 +40,7 @@ def formatFileName(file):
     # ensure nothing gets overwritten
     num = 0
     length = len(file[0:-5])
-    while os.path.isfile(f"fits_files/{file}"):
+    while os.path.isfile(f"{FITS_PATH}/{file}"):
         file = file[0:length] + f"({num})" + file[-5:]
         num += 1
     return file
@@ -61,6 +49,8 @@ def formatFileName(file):
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
+
+    #app.config['UPLOAD_FOLDER'] = 'static/fits_files'
 
     logging.basicConfig(level=logging.DEBUG)
 
@@ -126,49 +116,61 @@ def create_app(test_config=None):
     def route_get_filter():
         pass
 
-    @app.route('/setFilter')
-    def route_set_filter():
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        req = request.get_json(force=True)
-        s.connect(('127.0.0.1', 5503))
-        #if req['value']
-        s.send(b'home\n')
-        received = s.recv(100).decode()
-        s.close()
-        return received
+#    @app.route('/setFilter')
+#    async def route_set_filter():
+#        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#        req = request.get_json(force=True)
+#        s.connect(('127.0.0.1', 5503))
+#        #if req['value']
+#        s.send(b'home\n')
+#        received = await s.recv(1000).decode()
+#        s.close()
+#        return received
 
     def set_filter(filter):
+        res = asyncio.run(set_filter_helper(filter))
+        return res
+
+    async def set_filter_helper(filter):
         # these filter positions are placeholders - need to find which filter corresponds
         # to each position on the wheel
         """
         Moves the filter to the given position.
         """
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(('127.0.0.1', 5503))
 
         filter_dict = {'Ha': 1,
                        'B' : 2,
                        'V' : 3,
                        'g': 4,
                        'r': 5}
+        
+        if filter not in filter_dict.keys():
+            raise ValueError('Invalid Filter')
 
         pos_str = f"move {filter_dict[filter]}\n"
-        s.send(pos_str.encode('utf-8'))
-        received = s.recv(100).decode()
-        s.close()
-        return received
-        
+        reader, writer = await asyncio.open_connection('127.0.0.1', 5503)
+        writer.write(pos_str.encode('utf-8'))
+        await writer.drain()
+        received = await reader.readline()
+        writer.close()
+        await writer.wait_closed()     
+        return {'message': received.decode()}
+    
     def home_filter():
+        res = asyncio.run(home_filter_helper())
+        return res
+        
+    async def home_filter_helper():
         """
         Homes the filter back to its default position.
         """
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        req = request.get_json(force=True)
-        s.connect(('127.0.0.1', 5503))
-        s.send(b'home\n')
-        received = s.recv(100).decode()
-        s.close()
-        return received
+        reader, writer = await asyncio.open_connection('127.0.0.1', 5503)
+        writer.write(b'home\n')
+        await writer.drain()
+        received = await reader.readline()
+        writer.close()
+        await writer.wait_closed()
+        return {'message': received.decode()}
     
     @app.route('/testReturnFITS', methods=['GET'])
     def route_testReturnFITS():
@@ -194,7 +196,8 @@ def create_app(test_config=None):
         Attempts to take a picture with the camera. Uses the 'POST' method
         to take in form requests from the front end.
 
-        TBD: What to return - the fits file or the np array.
+        Returns the url for the fits file generated, which is then used for
+        JS9's display.
         Throws an error if status code is not 20002 (success).
         """
         if request.method == "POST":
@@ -205,14 +208,14 @@ def create_app(test_config=None):
             # check if acquisition is already in progress
             status = andor.getStatus()
             if status == 20072:
-                return str('Acquisition already in progress.')
+                return {'message': str('Acquisition already in progress.')}
 
             # handle filter type - untested, uncomment if using filter wheel
-            #filter_msg = set_filter(req['fil_type'])
-            #if filter_msg.startswith('Error'):
-            #    raise Exception(filter_msg)
-            #else:
-            #    app.logger.info(filter_msg)
+            filter_msg = set_filter(req['fil_type'])
+            if filter_msg['message'].startswith('Error'):
+                raise Exception(filter_msg)
+            else:
+                app.logger.info(filter_msg)
 
             # handle img type
             if req['img_type'] == 'bias':
@@ -247,17 +250,12 @@ def create_app(test_config=None):
                 status = andor.getStatus()
                 app.logger.info('Acquisition in progress')
 
-            #if status == 20073:
-            #    andor.startAcquisition()
-            #else:
-            #    return 'Acquisition already in progress'
-
             img = andor.getAcquiredData(dim)
             
             if img['status'] == 20002:
                 # use astropy here to write a fits file
-                andor.setShutter(1, 0, 50, 50)
-                #home_filter() # uncomment if using filter wheel
+                andor.setShutter(1, 0, 50, 50) #closes shutter
+                home_filter() # uncomment if using filter wheel
                 hdu = fits.PrimaryHDU(img['data'])
                 hdu.header['EXP_TIME'] = (float(req['exp_time']), "Exposure Time (Seconds)")
                 hdu.header['EXP_TYPE'] = (str(req['exp_type']), "Exposure Type (Single, Real Time, or Series)")
@@ -266,35 +264,44 @@ def create_app(test_config=None):
 
                 fname = req['file_name']
                 fname = formatFileName(fname)
-                hdu.writeto(f"fits_files/{fname}", overwrite=True)
-                send_file(fname)
+                hdu.writeto(f"{FITS_PATH}/{fname}", overwrite=True)
+
                 return {"file_name":fname,
-                        "file_path":f"fits_files/{fname}",
+                        "url":url_for('static', filename = f'fits_files/{fname}'),
                         "message": "Capture Successful"} 
                 
             else:
                 andor.setShutter(1, 0, 50, 50)
-                #home_filter() # uncomment if using filter wheel
+                home_filter() # uncomment if using filter wheel
                 return {"message": str('Capture Unsuccessful')}
-                # next thing to do - utilize js9
+                
             
-            
-    def send_file(file_name):
-        uploads = os.path.join(current_app.root_path, './fits_files/')
-        return send_from_directory(uploads, file_name, as_attachment=True)
+    # we shouldn't download files locally - instead, lets upload them to server instead        
+    #def send_file(file_name):
+    #   uploads = os.path.join(current_app.root_path, './fits_files/')
+    #   return send_from_directory(uploads, file_name, as_attachment=True)
 
     @app.route('/fw_test')
+    def route_fw_test_helper():
+        res = asyncio.run(route_fw_test())
+        return res
+
     async def route_fw_test():
         """
         Tests the example server server.py
         """
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(('127.0.0.1', 5503))
-        s.send(b'getFilter\n')
-        received = await s.recv(1000).decode()
-        s.close()
-        return received
-        #pass
+
+        reader, writer = await asyncio.open_connection('127.0.0.1', 5503)
+        writer.write(b'getFilter\n')
+        await writer.drain()
+        received = await reader.readline()
+        writer.close()
+        await writer.wait_closed()
+        
+        return {'message': received.decode()}
+        
+
+        
 
     return app
 

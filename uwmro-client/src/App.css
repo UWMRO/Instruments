@@ -35,6 +35,8 @@
 .Logo {
   height: 150px;
   width: 150px;
+  border-radius: 50px;
+  margin-top: 2%;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -66,3 +68,10 @@
     transform: rotate(360deg);
   }
 }
+
+body {
+  background: rgb(254,0,240);
+  background: linear-gradient(90deg, rgba(254,0,240,1) 0%, rgba(97,9,121,1) 50%, rgba(0,237,255,0.7008053221288515) 100%);
+  color: white;
+}
+

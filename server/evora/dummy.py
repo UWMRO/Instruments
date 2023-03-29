@@ -411,3 +411,4 @@ class Dummy:
         else:
             return DRV_NOT_INITIALIZED
     # setTriggerMode = noop
+

@@ -1,7 +1,12 @@
+//import { setFilter } from "../apiClient";
+
 function FilterTypeSelector({filterType, setFilterType}) {
 
     function GetFilterTypeClicked(e) {
         setFilterType(e.target.value)
+        console.log(e.target.value)
+        //const filt = setFilter(e.target.value)
+        //console.log(filt)
     }
 
     return (

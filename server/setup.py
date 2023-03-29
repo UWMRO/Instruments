@@ -1,4 +1,5 @@
 import os
+import platform
 import sys
 from distutils import sysconfig
 from distutils.core import Extension
@@ -40,6 +41,7 @@ if sys.platform == 'darwin':
 root_path = os.path.dirname(__file__)
 LIBANDOR_PATH = root_path + '/evora/andor_wrapper.cpp'
 
+
 ext_modules = [
     Extension(
         'evora.libandor_wrapper',
@@ -49,6 +51,7 @@ ext_modules = [
         extra_link_args=extra_link_args,
         optional=False)
 ]
+
 
 
 setup(
@@ -61,3 +64,4 @@ setup(
         packages=find_packages(exclude=('tests*')),
         ext_modules=ext_modules
 )
+

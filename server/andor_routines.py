@@ -1,8 +1,11 @@
-try:
-    import evora.andor as andor
-    andor.initialize()
-except:
-    import evora.dummy as andor
+# try:
+#     import evora.andor as andor
+#     import time
+# except:
+#     import evora.dummy as andor
+
+import evora.andor as andor
+import time
 
 # biases: Readout noise from camera (effectively 0 s exposure)
 # flats: take an image with even lighting (i.e. the white paint of the dome)
@@ -25,15 +28,15 @@ def startup():
     }
 
 def activateCooling(target_temperature = -10):
-    andor.setFanMode(2)
-    andor.coolerON()
+    # andor.setFanMode(2)
+    andor.coolerOn()
     andor.setTargetTEC(target_temperature)
 
     return 20002
 
 def deactivateCooling(fan_mode_high=False):
     andor.coolerOff()
-    andor.setFanMode(0 if fan_mode_high else 1)
+    # andor.setFanMode(0 if fan_mode_high else 1)
 
     return 20002
 
@@ -41,9 +44,9 @@ def acquisition(dim, exposure_time = 0.1):
     andor.setExposureTime(exposure_time)
     andor.startAcquisition()
 
-    camera_status = andor.getStatus()
-    while (camera_status == 20072):
-        camera_status = andor.getStatus()
+    time.sleep(exposure_time + 0.5)
+    # while (camera_status == 20072):
+    #     camera_status = andor.getStatus()
 
     return {
         'data' : andor.getAcquiredData(dim)['data'],

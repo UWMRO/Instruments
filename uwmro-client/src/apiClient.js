@@ -9,10 +9,12 @@ export async function getTemperature() {
 	// The same applies here - we make another dotted line between trying to read the response
 	// body as JSON and the remainder of the function
     const data = await response.json()
+    console.log(data)
 	// Remember that async makes this return a Promise. This return statement "resolves" the
 	// promise. If some other part of our code awaits getTemperature(), it will resume after
 	// after this return statement. 
-    return data
+    return JSON.stringify(data)
+    // return await response.json()
 }
 
 export async function setTemperature(input) {
@@ -21,7 +23,7 @@ export async function setTemperature(input) {
     const response = await fetch('/setTemperature', {
         method:"POST",
         credentials:"include",
-        body: JSON.stringify(input),
+        body: JSON.stringify({'temperature' : input.toString()}),
         cache: "no-cache",
         headers: new Headers({
             "content-type": "application/json"
@@ -30,11 +32,10 @@ export async function setTemperature(input) {
 
     const data = await response.json()
 
-    return data
+    return JSON.stringify(data)
 }
 
 export async function capture(input) {
-
     const response = await fetch('/capture', {
         method:"POST",
         credentials:"include",

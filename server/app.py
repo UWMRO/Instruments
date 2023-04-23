@@ -1,4 +1,5 @@
-from evora.dummy import Dummy as andor #andor
+# from evora.dummy import Dummy as andor #andor
+from evora import andor
 from andor_routines import startup, activateCooling, deactivateCooling, acquisition
 from flask import Flask, render_template, request, redirect, jsonify, make_response, send_from_directory, current_app, url_for
 import asyncio
@@ -8,6 +9,9 @@ import socket
 import os
 import numpy as np
 from datetime import datetime
+import atexit
+import json
+import time
 """
  dev note: I also ran pip install aioflask and pip install asgiref to try to give flask async abilities.
  this is for handling requests from the filter wheel that may take some time.
@@ -59,9 +63,10 @@ def create_app(test_config=None):
         # load the test config if passed in
         app.config.from_mapping(test_config)
     
-    andor.initialize()
+    status = startup()
+    activateCooling()
 
-    app.logger.info(f"Startup Status: {start['status']}")
+    app.logger.info(f"Startup Status: {str(status['status'])}")
     
 
     @app.route('/getStatus')
@@ -86,11 +91,11 @@ def create_app(test_config=None):
             req = request.get_json(force=True)
             
             try:
-                req_temperature = float(req['temperature'])
+                req_temperature = int(req['temperature'])
                 app.logger.info(f'Setting temperature to: {req_temperature:.2f} [C]')
-                andor.setTemperature(req_temperature)
+                andor.setTargetTEC(req_temperature)
             except ValueError:
-                app.logger.info('Post request received a parameter of invalid type (must be float)')
+                app.logger.info('Post request received a parameter of invalid type (must be int)')
         
         return str(req['temperature'])
 
@@ -119,9 +124,9 @@ def create_app(test_config=None):
 
     #         return res
 
-    @app.route('/getStatusTEC')
-    def route_getStatusTEC():
-        return str(andor.getStatusTEC()['status'])
+    # @app.route('/getStatusTEC')
+    # def route_getStatusTEC():
+    #     return str(andor.getStatusTEC()['status'])
 
     @app.route('/get_filter_position')
     def route_get_filter():
@@ -213,7 +218,7 @@ def create_app(test_config=None):
         """
         if request.method == "POST":
             req = request.get_json(force=True)
-
+            req = json.loads(req)
             dim = andor.getDetector()['dimensions']
 
             # check if acquisition is already in progress
@@ -222,14 +227,15 @@ def create_app(test_config=None):
                 return {'message': str('Acquisition already in progress.')}
 
             # handle filter type - untested, uncomment if using filter wheel
-            filter_msg = set_filter(req['fil_type'])
-            if filter_msg['message'].startswith('Error'):
-                raise Exception(filter_msg)
-            else:
-                app.logger.info(filter_msg)
+            
+            # filter_msg = set_filter(req['fil_type'])
+            # if filter_msg['message'].startswith('Error'):
+            #     raise Exception(filter_msg)
+            # else:
+            #     app.logger.info(filter_msg)
 
             # handle img type
-            if req['img_type'] == 'bias':
+            if req['imgtype'] == 'bias':
                 andor.setShutter(1, 2, 50, 50)
                 andor.setImage(1, 1, 1, dim[0], 1, dim[1])
             else:
@@ -238,22 +244,22 @@ def create_app(test_config=None):
 
             # handle exposure type
             # refer to pg 41 - 45 of sdk for acquisition mode info
-            if req['exp_type'] == 'Single':
+            if req['exptype'] == 'Single':
                 andor.setAcquisitionMode(1)
-                andor.setExposureTime(float(req['exp_time']))
+                andor.setExposureTime(float(req['exptime']))
                 
-            elif req['exp_type'] == 'Real Time':
+            elif req['exptype'] == 'Real Time':
                 # this uses "run till abort" mode - how do we abort it?
                 andor.setAcquisitionMode(5)
                 andor.setExposureTime(0.3)
                 andor.setKineticCycleTime(0)
 
-            elif req['exp_type'] == 'Series':
+            elif req['exptype'] == 'Series':
                 andor.setAcquisitionMode(3)
-                andor.setNumberKinetics(int(req['exp_num']))
-                andor.setExposureTime(float(req['exp_time']))
+                andor.setNumberKinetics(int(req['expnum']))
+                andor.setExposureTime(float(req['exptime']))
 
-            file_name = f"{req['file_name']}.fits"
+            file_name = f"{req['filename']}.fits"
                 
             andor.startAcquisition()
             status = andor.getStatus()
@@ -262,23 +268,24 @@ def create_app(test_config=None):
                 status = andor.getStatus()
                 app.logger.info('Acquisition in progress')
 
-            img = andor.getAcquiredData(dim)
+            time.sleep(0.5)
+            img = andor.getAcquiredData(dim) # TODO: throws an error here! gotta wait for acquisition
             
             if img['status'] == 20002:
                 # use astropy here to write a fits file
                 andor.setShutter(1, 0, 50, 50) #closes shutter
                 home_filter() # uncomment if using filter wheel
                 hdu = fits.PrimaryHDU(img['data'])
-                hdu.header['EXP_TIME'] = (float(req['exp_time']), "Exposure Time (Seconds)")
-                hdu.header['EXP_TYPE'] = (str(req['exp_type']), "Exposure Type (Single, Real Time, or Series)")
-                hdu.header['IMG_TYPE'] = (str(req['img_type']), "Image Type (Bias, Flat, Dark, or Object)")
-                hdu.header['FILTER'] = (str(req['fil_type']), "Filter (Ha, B, V, g, r)")
+                hdu.header['EXP_TIME'] = (float(req['exptime']), "Exposure Time (Seconds)")
+                hdu.header['EXP_TYPE'] = (str(req['exptype']), "Exposure Type (Single, Real Time, or Series)")
+                hdu.header['IMG_TYPE'] = (str(req['imgtype']), "Image Type (Bias, Flat, Dark, or Object)")
+                hdu.header['FILTER'] = (str(req['filtype']), "Filter (Ha, B, V, g, r)")
 
-                fname = req['file_name']
+                fname = req['filename']
                 fname = formatFileName(fname)
                 hdu.writeto(f"{FITS_PATH}/{fname}", overwrite=True)
 
-                return {"file_name":fname,
+                return {"filename":fname,
                         "url":url_for('static', filename = f'fits_files/{fname}'),
                         "message": "Capture Successful"} 
                 
@@ -316,6 +323,11 @@ def create_app(test_config=None):
         
 
     return app
+
+def OnExitApp():
+    andor.shutdown()
+
+atexit.register(OnExitApp)
 
 app = create_app()
 

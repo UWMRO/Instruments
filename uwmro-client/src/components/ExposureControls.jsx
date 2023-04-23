@@ -32,17 +32,17 @@ function ExposureControls({ exposureType, imageType, filterType }) {
 
     const onSubmit = async data => {
         // if exposure time is less than 0, set it to 0
-        data.exp_time = Math.max(0, data.exp_time)
+        data.exptime = Math.max(0, data.exptime)
         // make sure exposure number is at least 1 exposure
-        data.exp_num = Math.max(1, data.exp_num)
+        data.expnum = Math.max(1, data.expnum).toString()
 
-        data.exp_type = exposureType
+        data.exptype = exposureType
         // if exposure time is 0, use bias type
-        data.img_type = data.exp_time == 0 ? "Bias" : imageType
+        data.imgtype = data.exptime == 0 ? "Bias" : imageType
+        data.exptime = data.exptime.toString()
+        data.filtype = filterType
 
-        data.fil_type = filterType
-
-        const message = await capture(data)
+        const message = await capture(JSON.stringify(data))
 
         console.log(message)
         // need to create url for file
@@ -75,17 +75,17 @@ function ExposureControls({ exposureType, imageType, filterType }) {
             </legend>
 
             <label> File Name 
-                <input type='text' {...register('file_name', { required: false })} placeholder="image.fits"/>
+                <input type='text' {...register('filename', { required: false })} placeholder="image.fits"/>
 
             </label>
             {exposureType !== 'Real Time'
             && <label> Exposure Time
-                <input type='number' {...register('exp_time', { required: true })}/>
+                <input type='number' {...register('exptime', { required: true })}/>
                 </label>
             }
             {exposureType === 'Series'
             && <label> Number of Exposures
-                <input type='number' {...register('exp_num', { required: false })}/>
+                <input type='number' {...register('expnum', { required: false })}/>
                 </label>
             }
             <button type='submit'>Get Exposure</button>

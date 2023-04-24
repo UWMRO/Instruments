@@ -274,7 +274,7 @@ def create_app(test_config=None):
             if img['status'] == 20002:
                 # use astropy here to write a fits file
                 andor.setShutter(1, 0, 50, 50) #closes shutter
-                home_filter() # uncomment if using filter wheel
+                # home_filter() # uncomment if using filter wheel
                 hdu = fits.PrimaryHDU(img['data'])
                 hdu.header['EXP_TIME'] = (float(req['exptime']), "Exposure Time (Seconds)")
                 hdu.header['EXP_TYPE'] = (str(req['exptype']), "Exposure Type (Single, Real Time, or Series)")

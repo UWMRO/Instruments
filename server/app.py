@@ -268,7 +268,7 @@ def create_app(test_config=None):
                 status = andor.getStatus()
                 app.logger.info('Acquisition in progress')
 
-            time.sleep(0.5)
+            time.sleep(float(req['exptime']) + 0.5)
             img = andor.getAcquiredData(dim) # TODO: throws an error here! gotta wait for acquisition
             
             if img['status'] == 20002:
